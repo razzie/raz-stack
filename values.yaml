@@ -1,0 +1,10 @@
+email: gabor@gorzsony.com
+
+certs:
+- "gorzsony.com"
+- "razzie.xyz"
+- "razbox.xyz"
+
+namecheap:
+  apiKey: # from NAMECHEAP_API_KEY env var
+  apiUser: # from NAMECHEAP_API_USER env var

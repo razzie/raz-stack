@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: namecheap-credentials
+  namespace: kube-system
+type: Opaque
+data:
+  apiKey: {{ .Values.namecheap.apiKey | b64enc | quote }}
+  apiUser: {{ .Values.namecheap.apiUser | b64enc | quote }}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-issuer
+  namespace: kube-system
+spec:
+  acme:
+    email: {{ .Values.email }}
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-secret
+    solvers:
+    - dns01:
+        webhook:
+          groupName: acme.namecheap.com
+          solverName: namecheap
+          config:
+            apiKeySecretRef:
+              name: namecheap-credentials
+              key: apiKey
+            apiUserSecretRef:
+              name: namecheap-credentials
+              key: apiUser
+
+{{ range .Values.certs }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "{{ . | replace "." "-" }}-cert"
+  namespace: kube-system
+spec:
+  secretName: "{{ . | replace "." "-" }}-cert"
+  commonName: "{{ . }}"
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-issuer
+  dnsNames:
+  - "{{ . }}"
+  - "*.{{ . }}"
+{{ end }}

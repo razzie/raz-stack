@@ -1,0 +1,4 @@
+apiVersion: v2
+name: raz-stack-shared
+description: Helm chart for shared raz-stack certificates and services
+version: 0.0.1
