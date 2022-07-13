@@ -5,6 +5,8 @@ repositories:
   url: https://helm.traefik.io/traefik
 - name: jetstack
   url: https://charts.jetstack.io
+- name: emberstack
+  url: https://emberstack.github.io/helm-charts
 #- name: hashicorp
 #  url: https://helm.releases.hashicorp.com
 
@@ -40,3 +42,7 @@ releases:
   chart: razzie/cert-manager-webhook-namecheap
   needs:
   - cert-manager/cert-manager
+
+- name: reflector
+  namespace: reflector
+  chart: emberstack/reflector
