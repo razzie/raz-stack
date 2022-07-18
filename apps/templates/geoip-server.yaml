@@ -4,7 +4,6 @@ metadata:
   name: geoip-server-route
 spec:
   entryPoints:
-  - web
   - websecure
   routes:
   - match: Host(`geoip-server.gorzsony.com`)
@@ -12,8 +11,6 @@ spec:
     services:
     - name: geoip-server
       port: 8080
-    middlewares:
-    - name: redirect-to-https
   tls:
     secretName: mirror-gorzsony-com-cert
 ---
