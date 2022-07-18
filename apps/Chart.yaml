@@ -1,0 +1,4 @@
+apiVersion: v2
+name: raz-stack-apps
+description: Helm chart for raz-stack microservices
+version: 0.0.1

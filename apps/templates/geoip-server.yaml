@@ -1,0 +1,70 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: geoip-server-route
+spec:
+  entryPoints:
+  - web
+  - websecure
+  routes:
+  - match: Host(`geoip-server.gorzsony.com`)
+    kind: Rule
+    services:
+    - name: geoip-server
+      port: 8080
+    middlewares:
+    - name: redirect-to-https
+  tls:
+    secretName: mirror-gorzsony-com-cert
+---
+apiVersion: k8s-db-operator.razzie.github.io/v1alpha1
+kind: DatabaseClaim
+metadata:
+  name: geoip-server-dbclaim
+spec:
+  databaseType: Redis
+  secretName: geoip-server-redis-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geoip-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: geoip-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geoip-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geoip-server
+  template:
+    metadata:
+      labels:
+        app: geoip-server
+    spec:
+      containers:
+      - name: geoip-server
+        image: razzquez/geoip-server:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: REDIS_ADDR
+          valueFrom:
+            secretKeyRef:
+              name: geoip-server-redis-secret
+              key: connectionString
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"

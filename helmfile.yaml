@@ -28,6 +28,12 @@ releases:
       apiKey: {{ requiredEnv "NAMECHEAP_API_KEY" | quote }}
       apiUser: {{ requiredEnv "NAMECHEAP_API_USER" | quote }}
 
+- name: raz-stack-apps
+  namespace: apps
+  chart: ./apps/
+  needs:
+  - shared/raz-stack-shared
+
 - name: traefik
   namespace: traefik
   chart: traefik/traefik
