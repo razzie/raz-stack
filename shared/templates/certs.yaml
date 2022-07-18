@@ -31,33 +31,6 @@ spec:
               name: namecheap-credentials
               key: apiUser
 
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: cert-secret-reader
-rules:
-- apiGroups: [""]
-  resources: ["secrets"]
-  resourceNames: ["*-cert"]
-  verbs: ["get", "watch", "list"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: cert-secret-reader
-subjects:
-- kind: Group
-  name: system:authenticated
-  apiGroup: rbac.authorization.k8s.io
-- kind: Group
-  name: system:unauthenticated
-  apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: Role
-  name: cert-secret-reader
-  apiGroup: rbac.authorization.k8s.io
-
 {{ range .Values.certs }}
 ---
 apiVersion: cert-manager.io/v1
@@ -73,4 +46,8 @@ spec:
   dnsNames:
   - "{{ . }}"
   - "*.{{ . }}"
+  secretTemplate:
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: ""
 {{ end }}
