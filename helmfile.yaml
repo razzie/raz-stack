@@ -21,6 +21,7 @@ releases:
   - traefik/traefik
   - cert-manager/cert-manager
   - cert-manager/cert-manager-webhook-namecheap
+  - shared/k8s-db-operator
   values:
   - values.yaml
   - namecheap:
@@ -46,3 +47,7 @@ releases:
 - name: reflector
   namespace: reflector
   chart: emberstack/reflector
+
+- name: k8s-db-operator
+  namespace: shared
+  chart: razzie/k8s-db-operator
