@@ -16,14 +16,14 @@ helmDefaults:
 releases:
 - name: raz-stack-shared
   namespace: shared
-  chart: .
+  chart: ./shared/
   needs:
   - traefik/traefik
   - cert-manager/cert-manager
   - cert-manager/cert-manager-webhook-namecheap
   - shared/k8s-db-operator
   values:
-  - values.yaml
+  - ./shared/values.yaml
   - namecheap:
       apiKey: {{ requiredEnv "NAMECHEAP_API_KEY" | quote }}
       apiUser: {{ requiredEnv "NAMECHEAP_API_USER" | quote }}
