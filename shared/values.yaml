@@ -8,3 +8,13 @@ certs:
 namecheap:
   apiKey: # from NAMECHEAP_API_KEY env var
   apiUser: # from NAMECHEAP_API_USER env var
+
+databases:
+  postgres:
+    storageCapacity: 8G
+    memoryLimit: 0.5Gi
+    cpuLimit: 500m
+  redis:
+    storageCapacity: 2G
+    memoryLimit: 0.5Gi
+    cpuLimit: 500m

@@ -51,3 +51,5 @@ releases:
 - name: k8s-db-operator
   namespace: shared
   chart: razzie/k8s-db-operator
+  values:
+  - ./shared/values.yaml
