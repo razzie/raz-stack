@@ -7,11 +7,10 @@ repositories:
   url: https://charts.jetstack.io
 - name: emberstack
   url: https://emberstack.github.io/helm-charts
-#- name: hashicorp
-#  url: https://helm.releases.hashicorp.com
 
 helmDefaults:
   createNamespace: true
+  historyMax: 2
 
 releases:
 - name: raz-stack-shared
@@ -37,6 +36,20 @@ releases:
 - name: traefik
   namespace: traefik
   chart: traefik/traefik
+  values:
+  - service:
+      annotationsTCP:
+        service.beta.kubernetes.io/linode-loadbalancer-default-proxy-protocol: "v2"
+        service.beta.kubernetes.io/scw-loadbalancer-proxy-protocol-v2: "true"
+        service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+  - additionalArguments:
+    - --entrypoints.web.http.redirections.entryPoint.to=:443
+    - --entrypoints.web.http.redirections.entryPoint.scheme=https
+    - --entrypoints.web.http.redirections.entrypoint.permanent=true
+    - --entryPoints.web.proxyProtocol.trustedIPs=127.0.0.1/32,10.0.0.0/8,{{ requiredEnv "RAZSTACK_PUBLIC_IP" }}/32
+    - --entryPoints.web.forwardedHeaders.trustedIPs=127.0.0.1/32,10.0.0.0/8,{{ requiredEnv "RAZSTACK_PUBLIC_IP" }}/32
+    - --entryPoints.websecure.proxyProtocol.trustedIPs=127.0.0.1/32,10.0.0.0/8,{{ requiredEnv "RAZSTACK_PUBLIC_IP" }}/32
+    - --entryPoints.websecure.forwardedHeaders.trustedIPs=127.0.0.1/32,10.0.0.0/8,{{ requiredEnv "RAZSTACK_PUBLIC_IP" }}/32
 
 - name: cert-manager
   namespace: cert-manager
