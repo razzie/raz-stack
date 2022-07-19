@@ -6,7 +6,7 @@ spec:
   entryPoints:
   - websecure
   routes:
-  - match: Host(`geoip-server.gorzsony.com`)
+  - match: Host(`geoip.gorzsony.com`)
     kind: Rule
     services:
     - name: geoip-server
