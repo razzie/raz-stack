@@ -42,6 +42,9 @@ releases:
         service.beta.kubernetes.io/linode-loadbalancer-default-proxy-protocol: "v2"
         service.beta.kubernetes.io/scw-loadbalancer-proxy-protocol-v2: "true"
         service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+        service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+        service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+        service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
   - additionalArguments:
     - --entrypoints.web.http.redirections.entryPoint.to=:443
     - --entrypoints.web.http.redirections.entryPoint.scheme=https
