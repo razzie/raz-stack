@@ -1,0 +1,53 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: uuid-server-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`uuid.gorzsony.com`)
+    kind: Rule
+    services:
+    - name: uuid-server
+      port: 8080
+  tls:
+    secretName: mirror-gorzsony-com-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: uuid-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: uuid-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uuid-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: uuid-server
+  template:
+    metadata:
+      labels:
+        app: uuid-server
+    spec:
+      containers:
+      - name: uuid-server
+        image: razzquez/uuid-server:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
