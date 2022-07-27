@@ -32,6 +32,8 @@ releases:
   chart: ./apps/
   needs:
   - shared/raz-stack-shared
+  values:
+  - publicBucketUrl: {{ requiredEnv "PUBLIC_BUCKET_URL" | quote }}
 
 - name: traefik
   namespace: traefik

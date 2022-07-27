@@ -1,0 +1,73 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: download-server-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`download.gorzsony.com`)
+    kind: Rule
+    services:
+    - name: download-server
+      port: 8080
+  tls:
+    secretName: mirror-gorzsony-com-cert
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: download-server-config
+data:
+  config: |
+    download.gorzsony.com -> s3://{{ .Values.publicBucketUrl }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: download-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 80
+  selector:
+    app: download-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: download-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: download-server
+  template:
+    metadata:
+      labels:
+        app: download-server
+    spec:
+      containers:
+      - name: download-server
+        image: razzquez/razvhost:latest
+        args:
+        - -nocert
+        - -cfg
+        - /config/config
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+        volumeMounts:
+        - mountPath: /config
+          name: config-vol
+      volumes:
+      - name: config-vol
+        configMap:
+          name: download-server-config
