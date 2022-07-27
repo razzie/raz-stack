@@ -1,0 +1,67 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: razlink-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`link.gorzsony.com`)
+    kind: Rule
+    services:
+    - name: razlink
+      port: 8080
+  tls:
+    secretName: mirror-gorzsony-com-cert
+---
+apiVersion: k8s-db-operator.razzie.github.io/v1alpha1
+kind: DatabaseClaim
+metadata:
+  name: razlink-dbclaim
+spec:
+  databaseType: Redis
+  secretName: razlink-redis-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: razlink
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: razlink
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: razlink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: razlink
+  template:
+    metadata:
+      labels:
+        app: razlink
+    spec:
+      containers:
+      - name: razlink
+        image: razzquez/razlink:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: REDIS_ADDR
+          valueFrom:
+            secretKeyRef:
+              name: razlink-redis-secret
+              key: connectionString
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"

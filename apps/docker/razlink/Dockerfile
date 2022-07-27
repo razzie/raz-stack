@@ -1,0 +1,17 @@
+FROM alpine/git as downloader
+WORKDIR /workspace
+RUN git clone https://github.com/razzie/razlink.git .
+
+FROM golang:1.18 as builder
+WORKDIR /workspace
+COPY --from=downloader /workspace .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod vendor -ldflags="-s -w" -o app ./cmd/razlink
+
+FROM alpine
+WORKDIR /
+COPY --from=builder /workspace/app .
+RUN echo "#!/bin/sh" > start.sh
+RUN echo "/app -redis \$REDIS_ADDR" >> start.sh
+RUN chmod +x start.sh
+USER 65532:65532
+CMD ["/start.sh"]
