@@ -1,0 +1,53 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: raztalk-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`talk.gorzsony.com`)
+    kind: Rule
+    services:
+    - name: raztalk
+      port: 8080
+  tls:
+    secretName: mirror-gorzsony-com-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: raztalk
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: raztalk
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: raztalk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: raztalk
+  template:
+    metadata:
+      labels:
+        app: raztalk
+    spec:
+      containers:
+      - name: raztalk
+        image: razzquez/raztalk:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
