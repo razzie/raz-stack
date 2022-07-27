@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pizzabot-secret
+type: Opaque
+data:
+  token: {{ .Values.pizzabotToken | b64enc | quote }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pizzabot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pizzabot
+  template:
+    metadata:
+      labels:
+        app: pizzabot
+    spec:
+      containers:
+      - name: pizzabot
+        image: razzquez/pizzabot:latest
+        env:
+        - name: PIZZABOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: pizzabot-secret
+              key: token
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
