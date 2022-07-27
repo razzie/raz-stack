@@ -1,7 +1,7 @@
 .PHONY: deploy
 deploy:
 	helm repo update razzie
-	helmfile sync
+	$(shell xargs < .env) helmfile sync
 
 .PHONY: install-helm-diff
 install-helm-diff:
