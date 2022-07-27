@@ -1,0 +1,111 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: razbox-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`razbox.gorzsony.com`)
+    kind: Rule
+    services:
+    - name: razbox
+      port: 8080
+  tls:
+    secretName: mirror-gorzsony-com-cert
+---
+apiVersion: k8s-db-operator.razzie.github.io/v1alpha1
+kind: DatabaseClaim
+metadata:
+  name: razbox-dbclaim
+spec:
+  databaseType: Redis
+  secretName: razbox-redis-secret
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: razbox-config
+data:
+  .razbox: |
+    {
+      "salt": "10dgw2upgwzsn",
+      "read_pw": "",
+      "write_pw": "8b69e8908b307567870ff4956cd536260d79a19d",
+      "max_folder_size": 2048,
+      "subfolders": true
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: razbox
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: razbox
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: razbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: razbox
+  template:
+    metadata:
+      labels:
+        app: razbox
+    spec:
+      initContainers:
+      - name: init-demo-dir
+        image: bash
+        workingDir: /razbox
+        command:
+        - bash
+        args:
+        - -c
+        - mkdir demo
+        volumeMounts:
+        - mountPath: "/razbox"
+          name: storage-vol
+      containers:
+      - name: razbox
+        image: razzquez/razbox:latest
+        args:
+        - -root
+        - /razbox
+        - -default-folder
+        - demo
+        ports:
+        - containerPort: 8080
+        env:
+        - name: REDIS_ADDR
+          valueFrom:
+            secretKeyRef:
+              name: razbox-redis-secret
+              key: connectionString
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+        volumeMounts:
+        - mountPath: "/razbox"
+          name: storage-vol
+        - mountPath: "/razbox/demo/.razbox"
+          subPath: .razbox
+          readOnly: true
+          name: config-vol
+      volumes:
+      - name: storage-vol
+        emptyDir: {}
+      - name: config-vol
+        configMap:
+          name: razbox-config
