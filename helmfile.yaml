@@ -49,10 +49,10 @@ releases:
     - --entrypoints.web.http.redirections.entryPoint.to=:443
     - --entrypoints.web.http.redirections.entryPoint.scheme=https
     - --entrypoints.web.http.redirections.entrypoint.permanent=true
-    - --entryPoints.web.proxyProtocol.trustedIPs=127.0.0.1/32,10.0.0.0/8,{{ requiredEnv "RAZSTACK_PUBLIC_IP" }}/32
-    - --entryPoints.web.forwardedHeaders.trustedIPs=127.0.0.1/32,10.0.0.0/8,{{ requiredEnv "RAZSTACK_PUBLIC_IP" }}/32
-    - --entryPoints.websecure.proxyProtocol.trustedIPs=127.0.0.1/32,10.0.0.0/8,{{ requiredEnv "RAZSTACK_PUBLIC_IP" }}/32
-    - --entryPoints.websecure.forwardedHeaders.trustedIPs=127.0.0.1/32,10.0.0.0/8,{{ requiredEnv "RAZSTACK_PUBLIC_IP" }}/32
+    - --entryPoints.web.proxyProtocol.insecure=true
+    - --entryPoints.web.forwardedHeaders.insecure=true
+    - --entryPoints.websecure.proxyProtocol.insecure=true
+    - --entryPoints.websecure.forwardedHeaders.insecure=true
 
 - name: cert-manager
   namespace: cert-manager
