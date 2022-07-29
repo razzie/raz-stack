@@ -59,10 +59,10 @@ spec:
         - containerPort: 80
         resources:
           requests:
-            memory: "32Mi"
+            memory: "8Mi"
             cpu: "100m"
           limits:
-            memory: "64Mi"
+            memory: "32Mi"
             cpu: "100m"
         volumeMounts:
         - mountPath: /config
