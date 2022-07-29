@@ -26,6 +26,13 @@ releases:
   - namecheap:
       apiKey: {{ requiredEnv "NAMECHEAP_API_KEY" | quote }}
       apiUser: {{ requiredEnv "NAMECHEAP_API_USER" | quote }}
+  - vpn:
+      enabled: true
+      serviceProvider: {{ env "VPN_SERVICE_PROVIDER" | quote }}
+      serverHostnames: {{ env "VPN_SERVER_HOSTNAMES" | quote }}
+      openvpn:
+        user: {{ env "OPENVPN_USER" | quote }}
+        password: {{ env "OPENVPN_PASSWORD" | quote }}
 
 - name: raz-stack-apps
   namespace: apps

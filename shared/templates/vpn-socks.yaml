@@ -1,0 +1,99 @@
+{{ if .Values.vpn.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vpn-secret
+type: Opaque
+data:
+  vpn_service_provider: {{ .Values.vpn.serviceProvider | b64enc | quote }}
+  vpn_server_hostnames: {{ .Values.vpn.serverHostnames | b64enc | quote }}
+  openvpn_user: {{ .Values.vpn.openvpn.user | b64enc | quote }}
+  openvpn_password: {{ .Values.vpn.openvpn.password | b64enc | quote }}
+{{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vpn-socks
+spec:
+  type: ClusterIP
+  ports:
+  - port: 1080
+  selector:
+    app: vpn-socks
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpn-socks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpn-socks
+  template:
+    metadata:
+      labels:
+        app: vpn-socks
+    spec:
+      containers:
+      {{- if .Values.vpn.enabled }}
+      - name: vpn
+        image: qmcgaw/gluetun:latest
+        env:
+        - name: VPN_SERVICE_PROVIDER
+          valueFrom:
+            secretKeyRef:
+              name: vpn-secret
+              key: vpn_service_provider
+        - name: VPN_TYPE
+          value: openvpn
+        - name: SERVER_HOSTNAMES
+          valueFrom:
+            secretKeyRef:
+              name: vpn-secret
+              key: vpn_server_hostnames
+        - name: OPENVPN_USER
+          valueFrom:
+            secretKeyRef:
+              name: vpn-secret
+              key: openvpn_user
+        - name: OPENVPN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: vpn-secret
+              key: openvpn_password
+        - name: OPENVPN_PROTOCOL
+          value: udp
+        - name: TZ
+          value: Europe/Budapest
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN"]
+        volumeMounts:
+        - mountPath: /dev/net/tun
+          readOnly: true
+          name: tun-device
+      {{- end }}
+      - name: socks5
+        image: serjs/go-socks5-proxy:latest
+        ports:
+        - containerPort: 1080
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+      volumes:
+      - name: tun-device
+        hostPath:
+          path: /dev/net/tun
