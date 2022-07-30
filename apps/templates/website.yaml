@@ -1,0 +1,83 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: website-route-1
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`gorzsony.com`)
+    kind: Rule
+    services:
+    - name: website
+      port: 8080
+  tls:
+    secretName: mirror-gorzsony-com-cert
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: website-route-2
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`razzie.xyz`)
+    kind: Rule
+    services:
+    - name: website
+      port: 8080
+  tls:
+    secretName: mirror-razzie-xyz-cert
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: website-secret
+type: Opaque
+data:
+  githubToken: {{ .Values.githubToken | b64enc | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: website
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: website
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: website
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: website
+  template:
+    metadata:
+      labels:
+        app: website
+    spec:
+      containers:
+      - name: website
+        image: razzquez/website:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: website-secret
+              key: githubToken
+        resources:
+          requests:
+            memory: "8Mi"
+            cpu: "100m"
+          limits:
+            memory: "32Mi"
+            cpu: "100m"
