@@ -1,4 +1,4 @@
-email: gabor@gorzsony.com
+certOwner: gabor@gorzsony.com
 
 certs:
 - "gorzsony.com"
@@ -6,8 +6,16 @@ certs:
 - "razbox.xyz"
 
 namecheap:
-  apiKey: # from NAMECHEAP_API_KEY env var
-  apiUser: # from NAMECHEAP_API_USER env var
+  apiKey: #NAMECHEAP_API_KEY
+  apiUser: #NAMECHEAP_API_USER
+
+vpn:
+  enabled: true
+  serviceProvider: #VPN_SERVICE_PROVIDER
+  serverHostnames: #VPN_SERVER_HOSTNAMES
+  openvpn:
+    user: #OPENVPN_USER
+    password: #OPENVPN_PASSWORD
 
 databases:
   postgres:

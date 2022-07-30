@@ -1,0 +1,4 @@
+apiVersion: v2
+name: raz-mailserver
+description: Helm chart for raz-stack mailserver
+version: 0.0.1

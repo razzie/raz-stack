@@ -1,0 +1,4 @@
+email:
+  accounts: #EMAIL_ACCOUNTS
+  password: #EMAIL_PASSWORD
+  storageCapacity: 3Gi

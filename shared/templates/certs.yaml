@@ -14,7 +14,7 @@ metadata:
   name: letsencrypt-issuer
 spec:
   acme:
-    email: {{ .Values.email }}
+    email: {{ .Values.certOwner }}
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: letsencrypt-secret

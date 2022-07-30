@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mailserver-config
+data:
+  postfix-main.cf: |
+    postscreen_upstream_proxy_protocol = haproxy
+  postfix-master.cf: |
+    submission/inet/smtpd_upstream_proxy_protocol=haproxy
+    smtps/inet/smtpd_upstream_proxy_protocol=haproxy
+  dovecot.cf: |
+    {{- with (first (lookup "v1" "Service" "traefik" "traefik").status.loadBalancer.ingress) }}
+    haproxy_trusted_networks = {{ .ip }}/32
+    {{- end }}
+    haproxy_timeout = 3 secs
+    service imap-login {
+      inet_listener imaps {
+        haproxy = yes
+        ssl = yes
+        port = 10993
+      }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mailserver-accounts-config
+data:
+  init-accounts.sh: |
+    !#/bin/sh
+    {{- $accounts := (split "," .Values.email.accounts) }}
+    {{- range $accounts }}
+    setup email add {{ . }} $EMAIL_PASSWORD
+    {{- end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mailserver-secret
+type: Opaque
+data:
+  password: {{ .Values.email.password | b64enc | quote }}

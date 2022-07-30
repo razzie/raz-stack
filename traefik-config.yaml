@@ -1,0 +1,50 @@
+service:
+  annotationsTCP:
+    service.beta.kubernetes.io/linode-loadbalancer-default-proxy-protocol: "v2"
+    service.beta.kubernetes.io/scw-loadbalancer-proxy-protocol-v2: "true"
+    service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+    service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+
+ports:
+  smtp:
+    port: 8025
+    exposedPort: 25
+    expose: true
+    protocol: TCP
+
+  smtp-tls:
+    port: 8587
+    exposedPort: 587
+    expose: true
+    protocol: TCP
+
+  imap:
+    port: 8143
+    exposedPort: 143
+    expose: true
+    protocol: TCP
+
+  imap-tls:
+    port: 8993
+    exposedPort: 993
+    expose: true
+    protocol: TCP
+
+additionalArguments:
+- --entrypoints.web.http.redirections.entryPoint.to=:443
+- --entrypoints.web.http.redirections.entryPoint.scheme=https
+- --entrypoints.web.http.redirections.entrypoint.permanent=true
+- --entryPoints.web.proxyProtocol.insecure=true
+- --entryPoints.web.forwardedHeaders.insecure=true
+- --entryPoints.websecure.proxyProtocol.insecure=true
+- --entryPoints.websecure.forwardedHeaders.insecure=true
+- --entryPoints.smtp.proxyProtocol.insecure=true
+- --entryPoints.smtp.forwardedHeaders.insecure=true
+- --entryPoints.smtp-tls.proxyProtocol.insecure=true
+- --entryPoints.smtp-tls.forwardedHeaders.insecure=true
+- --entryPoints.imap.proxyProtocol.insecure=true
+- --entryPoints.imap.forwardedHeaders.insecure=true
+- --entryPoints.imap-tls.proxyProtocol.insecure=true
+- --entryPoints.imap-tls.forwardedHeaders.insecure=true

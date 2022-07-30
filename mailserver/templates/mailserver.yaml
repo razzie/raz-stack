@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mailserver-pvc
+  annotations:
+    "helm.sh/resource-policy": "keep"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.email.storageCapacity | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailserver
+spec:
+  type: ClusterIP
+  ports:
+  - port: 25
+    name: smtp
+  - port: 143
+    name: imap
+  - port: 587
+    name: smtp-tls
+  - port: 993
+    name: imap-tls
+  selector:
+    app: mailserver
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailserver
+  template:
+    metadata:
+      labels:
+        app: mailserver
+    spec:
+      initContainers:
+      - name: init-accounts
+        image: mailserver/docker-mailserver:latest
+        command:
+        - sh
+        args:
+        - -c
+        - /init-accounts.sh && cp /var/mail-config/* /tmp/docker-mailserver/
+        env:
+        - name: EMAIL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mailserver-secret
+              key: password
+        volumeMounts:
+        - mountPath: "/var/mail-config"
+          name: config-vol
+        - mountPath: "/tmp/docker-mailserver"
+          name: live-config-vol
+        - mountPath: "/init-accounts.sh"
+          subPath: init-accounts.sh
+          name: config-accounts-vol
+      containers:
+      - name: mailserver
+        image: mailserver/docker-mailserver:latest
+        ports:
+        - containerPort: 25
+        - containerPort: 143
+        - containerPort: 587
+        - containerPort: 993
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "100m"
+        volumeMounts:
+        - mountPath: "/var/mail"
+          subPath: mail
+          name: storage-vol
+        - mountPath: "/var/mail-state"
+          subPath: mail-state
+          name: storage-vol
+        - mountPath: "/var/log/mail"
+          subPath: log
+          name: storage-vol
+        - mountPath: "/tmp/docker-mailserver"
+          name: live-config-vol
+      volumes:
+      - name: storage-vol
+        persistentVolumeClaim:
+          claimName: mailserver-pvc
+      - name: config-vol
+        configMap:
+          name: mailserver-config
+      - name: config-accounts-vol
+        configMap:
+          name: mailserver-accounts-config
+          defaultMode: 0777
+      - name: live-config-vol
+        emptyDir: {}

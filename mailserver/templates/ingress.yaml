@@ -1,0 +1,59 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: smtp-route
+spec:
+  entryPoints:
+  - smtp
+  routes:
+  - match: HostSNI(`*`)
+    kind: Rule
+    services:
+    - name: mailserver
+      port: 25
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: smtp-tls-route
+spec:
+  entryPoints:
+  - smtp-tls
+  routes:
+  - match: HostSNI(`*`)
+    kind: Rule
+    services:
+    - name: mailserver
+      port: 587
+  tls:
+    secretName: mailserver-cert
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: imap-route
+spec:
+  entryPoints:
+  - imap
+  routes:
+  - match: HostSNI(`*`)
+    kind: Rule
+    services:
+    - name: mailserver
+      port: 143
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: imap-tls-route
+spec:
+  entryPoints:
+  - imap-tls
+  routes:
+  - match: HostSNI(`*`)
+    kind: Rule
+    services:
+    - name: mailserver
+      port: 993
+  tls:
+    secretName: mailserver-cert
