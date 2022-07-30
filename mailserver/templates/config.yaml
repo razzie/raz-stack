@@ -7,11 +7,12 @@ data:
   postfix-main.cf: |
     postscreen_upstream_proxy_protocol = haproxy
     {{- if .Values.email.relay.host }}
-    relayhost = {{ .Values.email.relay.host }}
+    relayhost = [{{ .Values.email.relay.host }}]:{{ .Values.email.relay.port }}
     smtp_use_tls = yes
     smtp_tls_security_level = encrypt
     smtp_sasl_auth_enable = yes
     smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+    smtp_sasl_security_options = noanonymous
     smtp_sasl_tls_security_options = noanonymous
     {{- end }}
   postfix-master.cf: |
@@ -63,6 +64,6 @@ metadata:
 type: Opaque
 stringData:
   sasl_passwd: |
-    {{ .Values.email.relay.host }}  {{ .Values.email.relay.username }}:{{ .Values.email.relay.password }}
+    [{{ .Values.email.relay.host }}]:{{ .Values.email.relay.port }}  {{ .Values.email.relay.username }}:{{ .Values.email.relay.password }}
 {{ end }}
 {{ end }}

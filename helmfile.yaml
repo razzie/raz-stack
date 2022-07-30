@@ -45,6 +45,7 @@ releases:
       password: {{ env "EMAIL_PASSWORD" | quote }}
       relay:
         host: {{ env "EMAIL_RELAY_HOST" | quote }}
+        port: {{ env "EMAIL_RELAY_PORT" | quote }}
         username: {{ env "EMAIL_RELAY_USERNAME" | quote }}
         password: {{ env "EMAIL_RELAY_PASSWORD" | quote }}
 
