@@ -1,4 +1,4 @@
-{{ if .Values.vpn.enabled }}
+{{ if .Values.vpn.serviceProvider }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -37,7 +37,7 @@ spec:
         app: vpn-socks
     spec:
       containers:
-      {{- if .Values.vpn.enabled }}
+      {{- if .Values.vpn.serviceProvider }}
       - name: vpn
         image: qmcgaw/gluetun:latest
         env:

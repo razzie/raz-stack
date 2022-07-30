@@ -54,8 +54,8 @@ releases:
   needs:
   - shared/raz-stack-shared
   values:
-  - publicBucketUrl: {{ requiredEnv "PUBLIC_BUCKET_URL" | quote }}
-  - pizzabotToken: {{ requiredEnv "PIZZABOT_TOKEN" | quote }}
+  - publicBucketUrl: {{ env "PUBLIC_BUCKET_URL" | quote }}
+  - pizzabotToken: {{ env "PIZZABOT_TOKEN" | quote }}
 
 - name: traefik
   namespace: traefik

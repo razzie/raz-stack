@@ -10,7 +10,6 @@ namecheap:
   apiUser: #NAMECHEAP_API_USER
 
 vpn:
-  enabled: true
   serviceProvider: #VPN_SERVICE_PROVIDER
   serverHostnames: #VPN_SERVER_HOSTNAMES
   openvpn:
