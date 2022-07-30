@@ -1,17 +1,4 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mailserver-pvc
-  annotations:
-    "helm.sh/resource-policy": "keep"
-spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ .Values.email.storageCapacity | quote }}
----
-apiVersion: v1
 kind: Service
 metadata:
   name: mailserver
@@ -20,15 +7,19 @@ spec:
   ports:
   - port: 25
     name: smtp
-  - port: 143
-    name: imap
-  - port: 587
+  - port: 465
     name: smtp-tls
   - port: 993
+    targetPort: 10993
     name: imap-tls
+  - port: 995
+    targetPort: 10995
+    name: pop3-tls
   selector:
     app: mailserver
 ---
+{{ $accounts := (split "," .Values.email.accounts) }}
+{{ $hostname := (split "@" $accounts._0)._1 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -50,7 +41,7 @@ spec:
         - sh
         args:
         - -c
-        - /init-accounts.sh && cp /var/mail-config/* /tmp/docker-mailserver/
+        - /var/mail-config/init-accounts.sh && cp /var/mail-config/*.cf /tmp/docker-mailserver/
         env:
         - name: EMAIL_PASSWORD
           valueFrom:
@@ -62,24 +53,34 @@ spec:
           name: config-vol
         - mountPath: "/tmp/docker-mailserver"
           name: live-config-vol
-        - mountPath: "/init-accounts.sh"
-          subPath: init-accounts.sh
-          name: config-accounts-vol
       containers:
       - name: mailserver
         image: mailserver/docker-mailserver:latest
         ports:
         - containerPort: 25
-        - containerPort: 143
-        - containerPort: 587
-        - containerPort: 993
+        - containerPort: 465
+        - containerPort: 10993
+        - containerPort: 10995
         resources:
           requests:
-            memory: "256Mi"
+            memory: "128Mi"
             cpu: "100m"
           limits:
             memory: "512Mi"
-            cpu: "100m"
+            cpu: "500m"
+        env:
+        - name: OVERRIDE_HOSTNAME
+          value: {{ $hostname }}
+        - name: ONE_DIR
+          value: "1"
+        - name: TLS_LEVEL
+          value: modern
+        - name: SSL_TYPE
+          value: manual
+        - name: SSL_CERT_PATH
+          value: /var/mail-certs/tls.crt
+        - name: SSL_KEY_PATH
+          value: /var/mail-certs/tls.key
         volumeMounts:
         - mountPath: "/var/mail"
           subPath: mail
@@ -92,6 +93,8 @@ spec:
           name: storage-vol
         - mountPath: "/tmp/docker-mailserver"
           name: live-config-vol
+        - mountPath: "/var/mail-certs"
+          name: certs-vol
       volumes:
       - name: storage-vol
         persistentVolumeClaim:
@@ -99,9 +102,9 @@ spec:
       - name: config-vol
         configMap:
           name: mailserver-config
-      - name: config-accounts-vol
-        configMap:
-          name: mailserver-accounts-config
           defaultMode: 0777
       - name: live-config-vol
         emptyDir: {}
+      - name: certs-vol
+        secret:
+          secretName: mailserver-cert

@@ -4,15 +4,17 @@ metadata:
   name: mailserver-config
 data:
   postfix-main.cf: |
+    smtp_use_tls = yes
     postscreen_upstream_proxy_protocol = haproxy
   postfix-master.cf: |
     submission/inet/smtpd_upstream_proxy_protocol=haproxy
+    smtp/inet/smtpd_upstream_proxy_protocol=haproxy
     smtps/inet/smtpd_upstream_proxy_protocol=haproxy
   dovecot.cf: |
     {{- with (first (lookup "v1" "Service" "traefik" "traefik").status.loadBalancer.ingress) }}
-    haproxy_trusted_networks = {{ .ip }}/32
-    {{- end }}
+    haproxy_trusted_networks = 127.0.0.1/32,10.0.0.0/8,100.64.0.0/10,{{ .ip }}/32
     haproxy_timeout = 3 secs
+    {{- end }}
     service imap-login {
       inet_listener imaps {
         haproxy = yes
@@ -20,18 +22,22 @@ data:
         port = 10993
       }
     }
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mailserver-accounts-config
-data:
+    service pop3-login {
+      inet_listener pop3s {
+        haproxy = yes
+        ssl = yes
+        port = 10995
+      }
+    }
   init-accounts.sh: |
     !#/bin/sh
     {{- $accounts := (split "," .Values.email.accounts) }}
+    {{- $domains := list }}
     {{- range $accounts }}
     setup email add {{ . }} $EMAIL_PASSWORD
+    {{- $domains = append $domains (split "@" .)._1 }}
     {{- end }}
+    setup config dkim domain '{{ $domains | join "," }}'
 ---
 apiVersion: v1
 kind: Secret

@@ -5,7 +5,6 @@ metadata:
   name: mailserver-cert
 spec:
   secretName: mailserver-cert
-  commonName: {{ (split "@" $accounts._0)._1 }}
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt-issuer
@@ -13,4 +12,5 @@ spec:
 {{ range $accounts }}
 {{ $domain := (split "@" .)._1 }}
   - "{{ $domain }}"
+  - "*.{{ $domain }}"
 {{ end }}

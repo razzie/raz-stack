@@ -9,26 +9,23 @@ service:
 
 ports:
   smtp:
-    port: 8025
+    port: 10025
     exposedPort: 25
     expose: true
     protocol: TCP
-
   smtp-tls:
-    port: 8587
-    exposedPort: 587
+    port: 10465
+    exposedPort: 465
     expose: true
     protocol: TCP
-
-  imap:
-    port: 8143
-    exposedPort: 143
-    expose: true
-    protocol: TCP
-
   imap-tls:
-    port: 8993
+    port: 10993
     exposedPort: 993
+    expose: true
+    protocol: TCP
+  pop3-tls:
+    port: 10995
+    exposedPort: 995
     expose: true
     protocol: TCP
 
@@ -44,7 +41,7 @@ additionalArguments:
 - --entryPoints.smtp.forwardedHeaders.insecure=true
 - --entryPoints.smtp-tls.proxyProtocol.insecure=true
 - --entryPoints.smtp-tls.forwardedHeaders.insecure=true
-- --entryPoints.imap.proxyProtocol.insecure=true
-- --entryPoints.imap.forwardedHeaders.insecure=true
 - --entryPoints.imap-tls.proxyProtocol.insecure=true
 - --entryPoints.imap-tls.forwardedHeaders.insecure=true
+- --entryPoints.pop3-tls.proxyProtocol.insecure=true
+- --entryPoints.pop3-tls.forwardedHeaders.insecure=true
