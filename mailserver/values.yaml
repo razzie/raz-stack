@@ -2,3 +2,8 @@ email:
   accounts: #EMAIL_ACCOUNTS
   password: #EMAIL_PASSWORD
   storageCapacity: 3Gi
+
+  relay:
+    host: #EMAIL_RELAY_HOST
+    username: #EMAIL_RELAY_USERNAME
+    password: #EMAIL_RELAY_PASSWORD

@@ -1,3 +1,4 @@
+{{ if .Values.email.accounts }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -56,6 +57,14 @@ spec:
       containers:
       - name: mailserver
         image: mailserver/docker-mailserver:latest
+        {{- if .Values.email.relay.host }}
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - postmap
+                - hash:/etc/postfix/sasl_passwd
+        {{- end }}
         ports:
         - containerPort: 25
         - containerPort: 465
@@ -93,6 +102,9 @@ spec:
           name: storage-vol
         - mountPath: "/tmp/docker-mailserver"
           name: live-config-vol
+        - mountPath: "/etc/postfix/sasl_passwd"
+          subPath: sasl_passwd
+          name: relay-config-vol
         - mountPath: "/var/mail-certs"
           name: certs-vol
       volumes:
@@ -105,6 +117,11 @@ spec:
           defaultMode: 0777
       - name: live-config-vol
         emptyDir: {}
+      - name: relay-config-vol
+        secret:
+          secretName: mailserver-relay-secret
+          optional: true
       - name: certs-vol
         secret:
           secretName: mailserver-cert
+{{ end }}

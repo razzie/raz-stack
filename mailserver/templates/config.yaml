@@ -1,11 +1,19 @@
+{{ if .Values.email.accounts }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mailserver-config
 data:
   postfix-main.cf: |
-    smtp_use_tls = yes
     postscreen_upstream_proxy_protocol = haproxy
+    {{- if .Values.email.relay.host }}
+    relayhost = {{ .Values.email.relay.host }}
+    smtp_use_tls = yes
+    smtp_tls_security_level = encrypt
+    smtp_sasl_auth_enable = yes
+    smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+    smtp_sasl_tls_security_options = noanonymous
+    {{- end }}
   postfix-master.cf: |
     submission/inet/smtpd_upstream_proxy_protocol=haproxy
     smtp/inet/smtpd_upstream_proxy_protocol=haproxy
@@ -46,3 +54,15 @@ metadata:
 type: Opaque
 data:
   password: {{ .Values.email.password | b64enc | quote }}
+{{ if .Values.email.relay.host }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mailserver-relay-secret
+type: Opaque
+stringData:
+  sasl_passwd: |
+    {{ .Values.email.relay.host }}  {{ .Values.email.relay.username }}:{{ .Values.email.relay.password }}
+{{ end }}
+{{ end }}

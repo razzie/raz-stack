@@ -41,8 +41,12 @@ releases:
   values:
   - ./mailserver/values.yaml
   - email:
-      accounts: {{ requiredEnv "EMAIL_ACCOUNTS" | quote }}
-      password: {{ requiredEnv "EMAIL_PASSWORD" | quote }}
+      accounts: {{ env "EMAIL_ACCOUNTS" | quote }}
+      password: {{ env "EMAIL_PASSWORD" | quote }}
+      relay:
+        host: {{ env "EMAIL_RELAY_HOST" | quote }}
+        username: {{ env "EMAIL_RELAY_USERNAME" | quote }}
+        password: {{ env "EMAIL_RELAY_PASSWORD" | quote }}
 
 - name: raz-stack-apps
   namespace: apps
