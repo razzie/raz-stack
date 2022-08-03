@@ -1,0 +1,132 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: solder-forwarded-proto
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Proto: https
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: solder-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`solder.razzie.xyz`)
+    kind: Rule
+    middlewares:
+    - name: solder-forwarded-proto
+    services:
+    - name: solder
+      port: 8080
+  - match: Host(`solder-public.razzie.xyz`)
+    kind: Rule
+    services:
+    - name: solder
+      port: 80
+  tls:
+    secretName: mirror-razzie-xyz-cert
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: solder-pvc
+  annotations:
+    "helm.sh/resource-policy": "keep"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: solder
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    name: solder-api
+  - port: 80
+    name: solder-public
+  selector:
+    app: solder
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solder
+  template:
+    metadata:
+      labels:
+        app: solder
+    spec:
+      initContainers:
+      - name: init-database
+        image: razzquez/my-technic-solder:latest
+        command:
+        - cp
+        args:
+        - -n
+        - /db-init/database.sqlite3
+        - /var/lib/solder/database.sqlite3
+        volumeMounts:
+        - mountPath: /var/lib/solder
+          name: storage-vol
+      containers:
+      - name: solder-api
+        image: razzquez/my-technic-solder:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SOLDER_APP_URL
+          value: https://0.0.0.0:8080
+        - name: SOLDER_DB_DRIVER
+          value: sqlite
+        - name: SOLDER_MIRROR_URL
+          value: https://solder-public.razzie.xyz
+        - name: SOLDER_REPO_LOCATION
+          value: /repo
+        - name: SOLDER_SESSION_HTTP_ONLY
+          value: "false"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        volumeMounts:
+        - mountPath: /var/lib/solder
+          name: storage-vol
+      - name: solder-public
+        image: razzquez/my-technic-solder:latest
+        command:
+        - /razvhost
+        args:
+        - -nocert
+        - -cfg
+        - /razvhost-config
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "8Mi"
+            cpu: "100m"
+          limits:
+            memory: "16Mi"
+            cpu: "100m"
+      volumes:
+      - name: storage-vol
+        persistentVolumeClaim:
+          claimName: solder-pvc
