@@ -7,6 +7,8 @@ repositories:
   url: https://charts.jetstack.io
 - name: emberstack
   url: https://emberstack.github.io/helm-charts
+- name: nextcloud
+  url: https://nextcloud.github.io/helm
 
 helmDefaults:
   createNamespace: true
@@ -58,6 +60,21 @@ releases:
   - publicBucketUrl: {{ env "PUBLIC_BUCKET_URL" | quote }}
   - pizzabotToken: {{ env "PIZZABOT_TOKEN" | quote }}
   - githubToken: {{ env "GITHUB_TOKEN" | quote }}
+
+- name: raz-nextcloud
+  namespace: nextcloud
+  chart: ./nextcloud/
+  needs:
+  - shared/raz-stack-shared
+  values:
+  - ./nextcloud/values.yaml
+  - nextcloud:
+      s3:
+        bucket: {{ env "NEXTCLOUD_S3_BUCKET" | quote }}
+        endpoint: {{ env "NEXTCLOUD_S3_ENDPOINT" | quote }}
+        region: {{ env "NEXTCLOUD_S3_REGION" | quote }}
+        accessKey: {{ env "NEXTCLOUD_S3_ACCESS_KEY" | quote }}
+        secretKey: {{ env "NEXTCLOUD_S3_SECRET_KEY" | quote }}
 
 - name: traefik
   namespace: traefik

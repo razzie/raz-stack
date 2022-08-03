@@ -1,0 +1,15 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nextcloud-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`nextcloud.razzie.xyz`)
+    kind: Rule
+    services:
+    - name: raz-nextcloud
+      port: 8080
+  tls:
+    secretName: mirror-razzie-xyz-cert

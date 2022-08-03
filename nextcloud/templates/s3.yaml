@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nextcloud-s3-secret
+type: Opaque
+data:
+  bucket: {{ .Values.nextcloud.s3.bucket | b64enc | quote }}
+  endpoint: {{ .Values.nextcloud.s3.endpoint | b64enc | quote }}
+  region: {{ .Values.nextcloud.s3.region | b64enc | quote }}
+  accessKey: {{ .Values.nextcloud.s3.accessKey | b64enc | quote }}
+  secretKey: {{ .Values.nextcloud.s3.secretKey | b64enc | quote }}

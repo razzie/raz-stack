@@ -1,0 +1,7 @@
+apiVersion: k8s-db-operator.razzie.github.io/v1alpha1
+kind: DatabaseClaim
+metadata:
+  name: nextcloud-postgres-dbclaim
+spec:
+  databaseType: PostgreSQL
+  secretName: nextcloud-postgres-secret
