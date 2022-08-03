@@ -1,3 +1,6 @@
+#image:
+#  flavor: fpm
+
 nextcloud:
   host: nextcloud.razzie.xyz
   username: razzie
@@ -23,23 +26,22 @@ nextcloud:
            [
             'nextcloud.razzie.xyz'
            ],
-        'directory' = getenv('NEXTCLOUD_DATA_DIR') ?: '/var/www/html/data'
+        'directory' => getenv('NEXTCLOUD_DATA_DIR') ?: '/var/www/html/data'
       );
     postgres.config.php: |-
       <?php
-      $postgresConnStr = parse_url(getenv('POSTGRES_ADDR'))
+      $postgresConnStr = parse_url(getenv('POSTGRES_ADDR'));
       $CONFIG = array (
-        'dbtype' = 'pgsql',
-        'dbname' = substr($postgresConnStr['path'], 1),
-        'dbuser' = $postgresConnStr['user'],
-        'dbpassword' = $postgresConnStr['pass'],
-        'dbhost' = $postgresConnStr['host'],
-        'dbport' = $postgresConnStr['port']
-        'directory' = getenv('NEXTCLOUD_DATA_DIR') ?: '/var/www/html/data'
+        'dbtype' => 'pgsql',
+        'dbname' => substr($postgresConnStr['path'], 1),
+        'dbuser' => $postgresConnStr['user'],
+        'dbpassword' => urldecode($postgresConnStr['pass']),
+        'dbhost' => $postgresConnStr['host'],
+        'dbport' => $postgresConnStr['port'] ?? 5432
       );
     redis.config.php: |-
       <?php
-      $redisConnStr = parse_url(getenv('REDIS_ADDR'))
+      $redisConnStr = parse_url(getenv('REDIS_ADDR'));
       $CONFIG = array (
         'memcache.local' => '\\OC\\Memcache\\Redis',
         'memcache.distributed' => '\OC\Memcache\Redis',
@@ -47,7 +49,7 @@ nextcloud:
         'redis' => array(
           'host' => $redisConnStr['host'],
           'port' => $redisConnStr['port'],
-          'password' => $redisConnStr['pass']
+          'password' => urldecode($redisConnStr['pass'])
         )
       );
     s3.config.php: |-
@@ -56,12 +58,12 @@ nextcloud:
         'objectstore' => array(
           'class' => '\\OC\\Files\\ObjectStore\\S3',
           'arguments' => array(
-            'bucket'     => 'bucket-name',
-            'autocreate' => true,
-            'key'        => 's3-access-key',
-            'secret'     => 's3-secret-key',
-            'region'     => 's3-region',
-            'hostname'   => 's3-endpoint',
+            'bucket'     => getenv('S3_BUCKET'),
+            'autocreate' => false,
+            'key'        => getenv('S3_ACCESS_KEY'),
+            'secret'     => getenv('S3_SECRET_KEY'),
+            'region'     => getenv('S3_REGION'),
+            'hostname'   => getenv('S3_ENDPOINT'),
             'use_ssl'    => true,
             'use_path_style' => true
           )
@@ -115,19 +117,32 @@ nextcloud:
         key: secretKey
 
 cronjob:
+  enabled: false
+  image:
+    repository: curlimages/curl
+    tag: latest
   annotations: {}
   curlInsecure: false
-  enabled: true
   failedJobsHistoryLimit: 5
-  image: {}
   schedule: '*/5 * * * *'
   successfulJobsHistoryLimit: 2
 
 internalDatabase:
   enabled: false
 
+externalDatabase:
+  enabled: true
+  type: postgresql
+
 persistence:
   accessMode: ReadWriteOnce
   annotations: {}
   enabled: true
   size: 2Gi
+
+livenessProbe:
+  enabled: false
+readinessProbe:
+  enabled: false
+startupProbe:
+  enabled: false
