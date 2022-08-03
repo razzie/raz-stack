@@ -9,7 +9,7 @@ spec:
   - match: Host(`nextcloud.razzie.xyz`)
     kind: Rule
     services:
-    - name: raz-nextcloud
+    - name: nextcloud
       port: 8080
   tls:
     secretName: mirror-razzie-xyz-cert

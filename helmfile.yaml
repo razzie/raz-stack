@@ -1,99 +1,10 @@
-repositories:
-- name: razzie
-  url: https://razzie.github.io/helm-charts
-- name: traefik
-  url: https://helm.traefik.io/traefik
-- name: jetstack
-  url: https://charts.jetstack.io
-- name: emberstack
-  url: https://emberstack.github.io/helm-charts
-- name: nextcloud
-  url: https://nextcloud.github.io/helm
-
 helmDefaults:
   createNamespace: true
   historyMax: 2
+  disableValidation: true
 
-releases:
-- name: raz-stack-shared
-  namespace: shared
-  chart: ./shared/
-  needs:
-  - traefik/traefik
-  - cert-manager/cert-manager
-  - cert-manager/cert-manager-webhook-namecheap
-  values:
-  - ./shared/values.yaml
-  - namecheap:
-      apiKey: {{ requiredEnv "NAMECHEAP_API_KEY" | quote }}
-      apiUser: {{ requiredEnv "NAMECHEAP_API_USER" | quote }}
-  - vpn:
-      serviceProvider: {{ env "VPN_SERVICE_PROVIDER" | quote }}
-      serverHostnames: {{ env "VPN_SERVER_HOSTNAMES" | quote }}
-      openvpn:
-        user: {{ env "OPENVPN_USER" | quote }}
-        password: {{ env "OPENVPN_PASSWORD" | quote }}
-
-- name: raz-mailserver
-  namespace: mailserver
-  chart: ./mailserver/
-  needs:
-  - shared/raz-stack-shared
-  values:
-  - ./mailserver/values.yaml
-  - email:
-      accounts: {{ env "EMAIL_ACCOUNTS" | quote }}
-      password: {{ env "EMAIL_PASSWORD" | quote }}
-      relay:
-        host: {{ env "EMAIL_RELAY_HOST" | quote }}
-        port: {{ env "EMAIL_RELAY_PORT" | quote }}
-        username: {{ env "EMAIL_RELAY_USERNAME" | quote }}
-        password: {{ env "EMAIL_RELAY_PASSWORD" | quote }}
-
-- name: raz-stack-apps
-  namespace: apps
-  chart: ./apps/
-  needs:
-  - shared/raz-stack-shared
-  values:
-  - ./apps/values.yaml
-  - publicBucketUrl: {{ env "PUBLIC_BUCKET_URL" | quote }}
-  - pizzabotToken: {{ env "PIZZABOT_TOKEN" | quote }}
-  - githubToken: {{ env "GITHUB_TOKEN" | quote }}
-
-- name: raz-nextcloud
-  namespace: nextcloud
-  chart: ./nextcloud/
-  needs:
-  - shared/raz-stack-shared
-  values:
-  - ./nextcloud/values.yaml
-  - nextcloud:
-      s3:
-        bucket: {{ env "NEXTCLOUD_S3_BUCKET" | quote }}
-        endpoint: {{ env "NEXTCLOUD_S3_ENDPOINT" | quote }}
-        region: {{ env "NEXTCLOUD_S3_REGION" | quote }}
-        accessKey: {{ env "NEXTCLOUD_S3_ACCESS_KEY" | quote }}
-        secretKey: {{ env "NEXTCLOUD_S3_SECRET_KEY" | quote }}
-
-- name: traefik
-  namespace: traefik
-  chart: traefik/traefik
-  values:
-  - ./traefik-config.yaml
-
-- name: cert-manager
-  namespace: cert-manager
-  chart: jetstack/cert-manager
-  values:
-  - installCRDs: true
-
-- name: cert-manager-webhook-namecheap
-  namespace: cert-manager
-  chart: razzie/cert-manager-webhook-namecheap
-  needs:
-  - cert-manager/cert-manager
-
-- name: reflector
-  namespace: reflector
-  chart: emberstack/reflector
+helmfiles:
+- ./shared/helmfile.yaml
+- ./apps/helmfile.yaml
+- ./mailserver/helmfile.yaml
+- ./nextcloud/helmfile.yaml

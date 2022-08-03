@@ -1,0 +1,58 @@
+repositories:
+- name: razzie
+  url: https://razzie.github.io/helm-charts
+- name: traefik
+  url: https://helm.traefik.io/traefik
+- name: jetstack
+  url: https://charts.jetstack.io
+- name: emberstack
+  url: https://emberstack.github.io/helm-charts
+
+releases:
+- name: raz-stack-shared
+  namespace: shared
+  chart: .
+  needs:
+  - traefik/traefik
+  - cert-manager/cert-manager
+  - cert-manager/cert-manager-webhook-namecheap
+  - shared/k8s-db-operator
+  values:
+  - ./values.yaml
+  - namecheap:
+      apiKey: {{ requiredEnv "NAMECHEAP_API_KEY" | quote }}
+      apiUser: {{ requiredEnv "NAMECHEAP_API_USER" | quote }}
+  - vpn:
+      serviceProvider: {{ env "VPN_SERVICE_PROVIDER" | quote }}
+      serverHostnames: {{ env "VPN_SERVER_HOSTNAMES" | quote }}
+      openvpn:
+        user: {{ env "OPENVPN_USER" | quote }}
+        password: {{ env "OPENVPN_PASSWORD" | quote }}
+
+- name: traefik
+  namespace: traefik
+  chart: traefik/traefik
+  values:
+  - ./traefik-config.yaml
+
+- name: cert-manager
+  namespace: cert-manager
+  chart: jetstack/cert-manager
+  values:
+  - installCRDs: true
+
+- name: cert-manager-webhook-namecheap
+  namespace: cert-manager
+  chart: razzie/cert-manager-webhook-namecheap
+  needs:
+  - cert-manager/cert-manager
+
+- name: reflector
+  namespace: reflector
+  chart: emberstack/reflector
+
+- name: k8s-db-operator
+  namespace: shared
+  chart: razzie/k8s-db-operator
+  values:
+  - ./values.yaml
