@@ -20,7 +20,6 @@ releases:
   - traefik/traefik
   - cert-manager/cert-manager
   - cert-manager/cert-manager-webhook-namecheap
-  - shared/k8s-db-operator
   values:
   - ./shared/values.yaml
   - namecheap:
@@ -55,6 +54,7 @@ releases:
   needs:
   - shared/raz-stack-shared
   values:
+  - ./apps/values.yaml
   - publicBucketUrl: {{ env "PUBLIC_BUCKET_URL" | quote }}
   - pizzabotToken: {{ env "PIZZABOT_TOKEN" | quote }}
   - githubToken: {{ env "GITHUB_TOKEN" | quote }}
@@ -80,9 +80,3 @@ releases:
 - name: reflector
   namespace: reflector
   chart: emberstack/reflector
-
-- name: k8s-db-operator
-  namespace: shared
-  chart: razzie/k8s-db-operator
-  values:
-  - ./shared/values.yaml

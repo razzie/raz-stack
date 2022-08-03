@@ -1,2 +1,4 @@
 /.vscode
 /.env
+Chart.lock
+charts

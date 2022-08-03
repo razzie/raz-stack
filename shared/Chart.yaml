@@ -2,3 +2,7 @@ apiVersion: v2
 name: raz-stack-shared
 description: Helm chart for shared raz-stack certificates and services
 version: 0.0.1
+dependencies:
+- name: k8s-db-operator
+  version: 0.0.1
+  repository: https://razzie.github.io/helm-charts
