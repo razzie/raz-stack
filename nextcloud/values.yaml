@@ -13,6 +13,8 @@ nextcloud:
     accessKey: #NEXTCLOUD_S3_ACCESS_KEY
     secretKey: #NEXTCLOUD_S3_SECRET_KEY
 
+  backupPassword: #NEXTCLOUD_BACKUP_PASSWORD
+
   configs:
     custom.config.php: |-
       <?php

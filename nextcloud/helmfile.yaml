@@ -15,6 +15,7 @@ releases:
         region: {{ env "NEXTCLOUD_S3_REGION" | quote }}
         accessKey: {{ env "NEXTCLOUD_S3_ACCESS_KEY" | quote }}
         secretKey: {{ env "NEXTCLOUD_S3_SECRET_KEY" | quote }}
+      backupPassword: {{ env "NEXTCLOUD_BACKUP_PASSWORD" | quote }}
 
 - name: nextcloud
   namespace: nextcloud
