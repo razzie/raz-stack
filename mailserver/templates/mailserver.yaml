@@ -90,6 +90,8 @@ spec:
           value: /var/mail-certs/tls.crt
         - name: SSL_KEY_PATH
           value: /var/mail-certs/tls.key
+        - name: ENABLE_POP3
+          value: "1"
         volumeMounts:
         - mountPath: "/var/mail"
           subPath: mail
