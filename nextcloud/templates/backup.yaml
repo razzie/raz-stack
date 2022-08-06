@@ -65,6 +65,8 @@ spec:
             secretKeyRef:
                 name: nextcloud-s3-secret
                 key: secretKey
+        - name: S3_PREFIX
+          value: backup
         resources:
           requests:
             memory: "8Mi"
