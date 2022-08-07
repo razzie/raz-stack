@@ -15,6 +15,7 @@ data:
     smtp_sasl_security_options = noanonymous
     smtp_sasl_tls_security_options = noanonymous
     {{- end }}
+    mydestination = localhost.$mydomain, localhost
   postfix-master.cf: |
     submission/inet/smtpd_upstream_proxy_protocol=haproxy
     smtp/inet/smtpd_upstream_proxy_protocol=haproxy
@@ -46,7 +47,7 @@ data:
     setup email add {{ . }} $EMAIL_PASSWORD
     {{- $domains = append $domains (split "@" .)._1 }}
     {{- end }}
-    setup config dkim domain '{{ $domains | join "," }}'
+    #setup config dkim domain '{{ $domains | uniq | join "," }}'
 ---
 apiVersion: v1
 kind: Secret
