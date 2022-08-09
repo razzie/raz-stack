@@ -45,11 +45,13 @@ spec:
             secretKeyRef:
                 name: nextcloud-s3-secret
                 key: bucket
-        - name: S3_ENDPOINT
+        - name: S3_ENDPOINT_NOSCHEME
           valueFrom:
             secretKeyRef:
                 name: nextcloud-s3-secret
                 key: endpoint
+        - name: S3_ENDPOINT
+          value: https://$(S3_ENDPOINT_NOSCHEME)
         - name: S3_REGION
           valueFrom:
             secretKeyRef:
