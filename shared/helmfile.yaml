@@ -33,7 +33,7 @@ releases:
   namespace: traefik
   chart: traefik/traefik
   values:
-  - ./traefik-config.yaml
+  - ./traefik-config.yaml.gotmpl
 
 - name: cert-manager
   namespace: cert-manager

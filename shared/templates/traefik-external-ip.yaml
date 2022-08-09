@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-external-ip
+  namespace: traefik
+data:
+{{- with (first (lookup "v1" "Service" "traefik" "traefik").status.loadBalancer.ingress) }}
+  EXTERNAL_IP: {{ .ip }}
+{{- end }}

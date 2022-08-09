@@ -29,19 +29,16 @@ ports:
     expose: true
     protocol: TCP
 
+envFrom:
+- configMapRef:
+    name: traefik-external-ip
+
 additionalArguments:
 - --entrypoints.web.http.redirections.entryPoint.to=:443
 - --entrypoints.web.http.redirections.entryPoint.scheme=https
 - --entrypoints.web.http.redirections.entrypoint.permanent=true
-- --entryPoints.web.proxyProtocol.insecure=true
-- --entryPoints.web.forwardedHeaders.insecure=true
-- --entryPoints.websecure.proxyProtocol.insecure=true
-- --entryPoints.websecure.forwardedHeaders.insecure=true
-- --entryPoints.smtp.proxyProtocol.insecure=true
-- --entryPoints.smtp.forwardedHeaders.insecure=true
-- --entryPoints.smtp-tls.proxyProtocol.insecure=true
-- --entryPoints.smtp-tls.forwardedHeaders.insecure=true
-- --entryPoints.imap-tls.proxyProtocol.insecure=true
-- --entryPoints.imap-tls.forwardedHeaders.insecure=true
-- --entryPoints.pop3-tls.proxyProtocol.insecure=true
-- --entryPoints.pop3-tls.forwardedHeaders.insecure=true
+{{- $proxyProtocolEndpoints := list "web" "websecure" "smtp" "smtp-tls" "imap-tls" "pop3-tls" }}
+{{- range $proxyProtocolEndpoints }}
+- --entryPoints.{{ . }}.proxyProtocol.trustedIPs=$(EXTERNAL_IP)/32,10.0.0.0/8
+- --entryPoints.{{ . }}.forwardedHeaders.trustedIPs=$(EXTERNAL_IP)/32,10.0.0.0/8
+{{- end }}
