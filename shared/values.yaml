@@ -1,3 +1,5 @@
+imagePullToken: #IMAGE_PULL_TOKEN
+
 certOwner: gabor@gorzsony.com
 
 certs:
@@ -18,10 +20,13 @@ vpn:
 
 databases:
   postgres:
+    image: ghcr.io/razzie/postgres:14.5-alpine
     storageCapacity: 8G
     memoryLimit: 0.5Gi
     cpuLimit: 500m
   redis:
+    image: ghcr.io/razzie/kvrocks:v2.0.6
+    bashImage: ghcr.io/razzie/bash
     storageCapacity: 2G
     memoryLimit: 0.5Gi
     cpuLimit: 500m

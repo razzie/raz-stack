@@ -1,5 +1,6 @@
-#image:
-#  flavor: fpm
+image:
+  repository: ghcr.io/razzie/nextcloud
+  flavor: apache
 
 nextcloud:
   host: nextcloud.razzie.xyz

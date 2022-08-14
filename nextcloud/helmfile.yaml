@@ -1,6 +1,8 @@
 repositories:
-- name: nextcloud
-  url: https://nextcloud.github.io/helm
+- name: razzie
+  url: https://razzie.github.io/helm-charts
+#- name: nextcloud
+#  url: https://nextcloud.github.io/helm
 
 releases:
 - name: nextcloud-deps
@@ -19,7 +21,7 @@ releases:
 
 - name: nextcloud
   namespace: nextcloud
-  chart: nextcloud/nextcloud
+  chart: razzie/nextcloud
   needs:
   - nextcloud/nextcloud-deps
   values:

@@ -1,0 +1,3 @@
+image:
+  repository: ghcr.io/razzie/kubernetes-reflector
+  tag: 6.1.47

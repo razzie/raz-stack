@@ -1,0 +1,12 @@
+installCRDs: true
+
+image:
+  repository: ghcr.io/razzie/cert-manager-controller
+
+webhook:
+  image:
+    repository: ghcr.io/razzie/cert-manager-webhook
+
+cainjector:
+  image:
+    repository: ghcr.io/razzie/cert-manager-cainjector

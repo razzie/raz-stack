@@ -49,7 +49,10 @@ spec:
     spec:
       containers:
       - name: geoip-server
-        image: razzquez/geoip-server:latest
+        image: ghcr.io/razzie/geoip-server:v1.4
+        args:
+        - -redis
+        - $(REDIS_ADDR)
         ports:
         - containerPort: 8080
         env:

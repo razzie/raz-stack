@@ -51,7 +51,7 @@ spec:
     spec:
       containers:
       - name: download-server
-        image: razzquez/razvhost:latest
+        image: ghcr.io/razzie/razvhost:v1.15
         args:
         - -nocert
         - -cfg

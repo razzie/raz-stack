@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
       - name: uuid-server
-        image: razzquez/uuid-server:latest
+        image: ghcr.io/razzie/uuid-server:v1.1
         ports:
         - containerPort: 8080
         resources:

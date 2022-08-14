@@ -73,7 +73,7 @@ spec:
     spec:
       initContainers:
       - name: init-database
-        image: razzquez/my-technic-solder:latest
+        image: ghcr.io/razzie/my-technic-solder:v1.0
         command:
         - cp
         args:
@@ -85,7 +85,7 @@ spec:
           name: storage-vol
       containers:
       - name: solder-api
-        image: razzquez/my-technic-solder:latest
+        image: ghcr.io/razzie/my-technic-solder:v1.0
         ports:
         - containerPort: 8080
         env:
@@ -110,7 +110,7 @@ spec:
         - mountPath: /var/lib/solder
           name: storage-vol
       - name: solder-public
-        image: razzquez/my-technic-solder:latest
+        image: ghcr.io/razzie/my-technic-solder:v1.0
         command:
         - /razvhost
         args:

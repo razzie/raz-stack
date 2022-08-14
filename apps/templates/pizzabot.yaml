@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: pizzabot
-        image: razzquez/pizzabot:latest
+        image: ghcr.io/razzie/pizzabot:v1.0
         env:
         - name: PIZZABOT_TOKEN
           valueFrom:

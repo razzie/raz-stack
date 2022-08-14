@@ -63,24 +63,26 @@ spec:
     spec:
       initContainers:
       - name: init-demo-dir
-        image: bash
-        workingDir: /razbox
+        image: ghcr.io/razzie/bash
+        workingDir: /razbox-data
         command:
         - bash
         args:
         - -c
         - mkdir demo
         volumeMounts:
-        - mountPath: "/razbox"
+        - mountPath: "/razbox-data"
           name: storage-vol
       containers:
       - name: razbox
-        image: razzquez/razbox:latest
+        image: ghcr.io/razzie/razbox:v1.24
         args:
         - -root
-        - /razbox
+        - /razbox-data
         - -default-folder
         - demo
+        - -redis
+        - $(REDIS_ADDR)
         ports:
         - containerPort: 8080
         env:
@@ -97,9 +99,9 @@ spec:
             memory: "64Mi"
             cpu: "100m"
         volumeMounts:
-        - mountPath: "/razbox"
+        - mountPath: "/razbox-data"
           name: storage-vol
-        - mountPath: "/razbox/demo/.razbox"
+        - mountPath: "/razbox-data/demo/.razbox"
           subPath: .razbox
           readOnly: true
           name: config-vol

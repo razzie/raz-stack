@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
       - name: raztalk
-        image: razzquez/raztalk:latest
+        image: ghcr.io/razzie/raztalk:v1.1
         ports:
         - containerPort: 8080
         resources:

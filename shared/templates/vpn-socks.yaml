@@ -39,7 +39,7 @@ spec:
       containers:
       {{- if .Values.vpn.serviceProvider }}
       - name: vpn
-        image: qmcgaw/gluetun:latest
+        image: ghcr.io/razzie/gluetun:v3.30.0
         env:
         - name: VPN_SERVICE_PROVIDER
           valueFrom:
@@ -83,7 +83,7 @@ spec:
           name: tun-device
       {{- end }}
       - name: socks5
-        image: serjs/go-socks5-proxy:latest
+        image: ghcr.io/razzie/go-socks5-proxy:v0.0.3
         ports:
         - containerPort: 1080
         resources:

@@ -49,7 +49,10 @@ spec:
     spec:
       containers:
       - name: mediaserver
-        image: razzquez/mediaserver:latest
+        image: ghcr.io/razzie/mediaserver:v1.4
+        args:
+        - -redis
+        - $(REDIS_ADDR)
         ports:
         - containerPort: 8080
         env:

@@ -35,7 +35,7 @@ spec:
     spec:
       initContainers:
       - name: init-accounts
-        image: mailserver/docker-mailserver:latest
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         command:
         - sh
         args:
@@ -54,7 +54,7 @@ spec:
           name: live-config-vol
       containers:
       - name: mailserver
-        image: mailserver/docker-mailserver:latest
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         {{- if .Values.email.relay.host }}
         lifecycle:
           postStart:
