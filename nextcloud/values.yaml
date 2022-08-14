@@ -120,12 +120,11 @@ nextcloud:
         key: secretKey
 
 cronjob:
-  enabled: false
+  enabled: true
   image:
-    repository: curlimages/curl
+    repository: ghcr.io/razzie/curl
     tag: latest
   annotations: {}
-  curlInsecure: false
   failedJobsHistoryLimit: 5
   schedule: '*/5 * * * *'
   successfulJobsHistoryLimit: 2
@@ -143,9 +142,11 @@ persistence:
   enabled: true
   size: 2Gi
 
-livenessProbe:
-  enabled: false
-readinessProbe:
-  enabled: false
-startupProbe:
-  enabled: false
+#livenessProbe:
+#  enabled: false
+
+#readinessProbe:
+#  enabled: false
+
+#startupProbe:
+#  enabled: false
