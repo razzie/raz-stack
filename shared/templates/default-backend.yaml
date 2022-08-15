@@ -1,0 +1,79 @@
+{{ range .Values.certs }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: default-backend-{{ . | replace "." "-" }}-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: HostRegexp(`{catchall:.*}.{{ . }}`)
+    kind: Rule
+    priority: 1
+    services:
+    - name: default-backend
+      port: 8080
+  tls:
+    secretName: {{ . | replace "." "-" }}-cert
+---
+{{ end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: default-backend-config
+data:
+  config: |
+    * -> file:///www/index.html
+  index.html: |
+    <h1>The End of the Internet</h1>
+    <p>You have reached the end of the Internet. Feel free to go outside now.</p>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: default-backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 80
+  selector:
+    app: default-backend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: default-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: default-backend
+  template:
+    metadata:
+      labels:
+        app: default-backend
+    spec:
+      containers:
+      - name: default-backend
+        image: ghcr.io/razzie/razvhost:v1.14
+        args:
+        - -nocert
+        - -cfg
+        - /www/config
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "4Mi"
+            cpu: "100m"
+          limits:
+            memory: "8Mi"
+            cpu: "100m"
+        volumeMounts:
+        - mountPath: /www
+          name: config-vol
+      volumes:
+      - name: config-vol
+        configMap:
+          name: default-backend-config
