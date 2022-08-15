@@ -5,7 +5,6 @@ certOwner: gabor@gorzsony.com
 certs:
 - "gorzsony.com"
 - "razzie.xyz"
-- "razbox.xyz"
 
 namecheap:
   apiKey: #NAMECHEAP_API_KEY
