@@ -2,6 +2,15 @@ image:
   repository: ghcr.io/razzie/nextcloud
   flavor: apache
 
+ingress:
+  enabled: true # just for the cronjob
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+  tls:
+  - secretName: mirror-razzie-xyz-cert
+    hosts:
+    - nextcloud.razzie.xyz
+
 nextcloud:
   host: nextcloud.razzie.xyz
   username: razzie
