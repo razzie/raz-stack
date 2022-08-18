@@ -17,6 +17,11 @@ vpn:
     user: #OPENVPN_USER
     password: #OPENVPN_PASSWORD
 
+stream:
+  publish:
+    username: #STREAM_PUBLISH_USERNAME
+    password: #STREAM_PUBLISH_PASSWORD
+
 databases:
   postgres:
     image: ghcr.io/razzie/postgres:14.5-alpine

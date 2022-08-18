@@ -1,0 +1,134 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: stream-server-rtsp-route
+spec:
+  entryPoints:
+  - rtsp
+  routes:
+  - match: HostSNI(`*`)
+    services:
+    - name: stream-server
+      port: 8554
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: stream-server-hls-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: HostSNI(`stream.gorzsony.com`)
+    services:
+    - name: stream-server
+      port: 8443
+  tls:
+    passthrough: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stream-server-config
+data:
+  rtsp-simple-server.yml: |
+    logLevel: info
+    logDestinations: [stdout]
+    readTimeout: 10s
+    writeTimeout: 10s
+    readBufferCount: 64
+
+    rtspDisable: no
+    protocols: [tcp]
+    encryption: "optional"
+    rtspAddress: :8554
+    rtspsAddress: :8322
+    serverKey: /cert/tls.key
+    serverCert: /cert/tls.crt
+    authMethods: [basic, digest]
+
+    rtmpDisable: yes
+
+    hlsDisable: no
+    hlsAddress: :8443
+    hlsAlwaysRemux: yes
+    hlsVariant: lowLatency
+    hlsSegmentCount: 7
+    hlsSegmentDuration: 1s
+    hlsPartDuration: 200ms
+    hlsSegmentMaxSize: 10M
+    hlsAllowOrigin: '*'
+    hlsEncryption: true
+    hlsServerKey: /cert/tls.key
+    hlsServerCert: /cert/tls.crt
+    hlsTrustedProxies: []
+
+    paths:
+      all:
+        source: publisher
+        sourceProtocol: tcp
+        publishUser: sha256:{{ sha256sum .Values.stream.publish.username }}
+        publishPass: sha256:{{ sha256sum .Values.stream.publish.password }}
+        publishIPs: []
+        readUser:
+        readPass:
+        readIPs: []
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stream-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8554
+    name: rtsp
+  - port: 8322
+    name: rtsps
+  - port: 8443
+    name: hls
+  selector:
+    app: stream-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stream-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stream-server
+  template:
+    metadata:
+      labels:
+        app: stream-server
+    spec:
+      containers:
+      - name: stream-server
+        image: ghcr.io/razzie/rtsp-simple-server:v0.20.0
+        ports:
+        - containerPort: 8554
+        - containerPort: 8322
+        - containerPort: 8443
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        volumeMounts:
+        - mountPath: /rtsp-simple-server.yml
+          subPath: rtsp-simple-server.yml
+          name: config-vol
+        - mountPath: /cert
+          name: cert-vol
+          readOnly: true
+      volumes:
+      - name: config-vol
+        configMap:
+          name: stream-server-config
+      - name: cert-vol
+        secret:
+          secretName: gorzsony-com-cert

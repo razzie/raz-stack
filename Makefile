@@ -1,5 +1,6 @@
 .PHONY: all
-all: shared apps mailserver nextcloud
+all:
+	@$(shell xargs < .env) helmfile sync
 
 .PHONY: shared
 shared:

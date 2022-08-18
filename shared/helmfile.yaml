@@ -29,6 +29,10 @@ releases:
       openvpn:
         user: {{ env "OPENVPN_USER" | quote }}
         password: {{ env "OPENVPN_PASSWORD" | quote }}
+  - stream:
+      publish:
+        username: {{ env "STREAM_PUBLISH_USERNAME" | quote }}
+        password: {{ env "STREAM_PUBLISH_PASSWORD" | quote }}
 
 - name: traefik
   namespace: traefik
