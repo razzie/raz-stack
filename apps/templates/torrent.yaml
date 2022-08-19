@@ -1,0 +1,130 @@
+{{ if and .Values.torrent.username .Values.torrent.password }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: torrent-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`linuxiso.razzie.xyz`)
+    kind: Rule
+    services:
+    - name: torrent
+      port: 8080
+  tls:
+    secretName: mirror-razzie-xyz-cert
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: torrent-config
+data:
+  cloud-torrent.yaml: |
+    DownloadDirectory: /downloads
+    WatchDirectory: /torrents
+    AutoStart: true
+    AllowRuntimeConfigure: true
+    EngineDebug: false
+    MuteEngineLog: true
+    ObfsPreferred: true
+    ObfsRequirePreferred: false
+    DisableTrackers: false
+    DisableIPv6: false
+    DisableUTP: false
+    NoDefaultPortForwarding: true
+    EnableUpload: true
+    EnableSeeding: true
+    IncomingPort: 50007
+    DoneCmd: ""
+    SeedRatio: 1.5
+    SeedTime: "60m"
+    UploadRate: High
+    DownloadRate: Unlimited
+    TrackerListURL: https:#raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt
+    AlwaysAddTrackers: true
+    MaxConcurrentTask: 0
+    ProxyURL: socks5:#vpn-socks.shared.svc.cluster.local:1080
+    # ScraperURL: https:#raw.githubusercontent.com/boypt/simple-torrent/master/scraper-config.json
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: torrent-secret
+type: Opaque
+data:
+  username: {{ .Values.torrent.username | b64enc | quote }}
+  password: {{ .Values.torrent.password | b64enc | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: torrent
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: torrent
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: torrent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: torrent
+  template:
+    metadata:
+      labels:
+        app: torrent
+    spec:
+      containers:
+      - name: torrent
+        image: ghcr.io/razzie/cloud-torrent:1.3.9
+        args:
+        - --config-path
+        - "/config/cloud-torrent.yaml"
+        - --port
+        - "8080"
+        - --auth
+        - "$(USERNAME):$(PASSWORD)"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: torrent-secret
+              key: username
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: torrent-secret
+              key: password
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        volumeMounts:
+        - mountPath: /downloads
+          subPath: downloads
+          name: storage-vol
+        - mountPath: /torrents
+          subPath: torrents
+          name: storage-vol
+        - mountPath: /config
+          name: config-vol
+      volumes:
+      - name: storage-vol
+        hostPath:
+          path: /data
+      - name: config-vol
+        configMap:
+          name: torrent-config
+{{ end }}
