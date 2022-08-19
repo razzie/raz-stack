@@ -67,8 +67,10 @@ data:
       all:
         source: publisher
         sourceProtocol: tcp
-        publishUser: sha256:{{ sha256sum .Values.stream.publish.username }}
-        publishPass: sha256:{{ sha256sum .Values.stream.publish.password }}
+        #publishUser: sha256:{{ sha256sum .Values.stream.publish.username | b64enc }}
+        #publishPass: sha256:{{ sha256sum .Values.stream.publish.password | b64enc }}
+        publishUser: {{ .Values.stream.publish.username }}
+        publishPass: {{ .Values.stream.publish.password }}
         publishIPs: []
         readUser:
         readPass:
