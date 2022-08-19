@@ -1,12 +1,6 @@
 repositories:
 - name: razzie
   url: https://razzie.github.io/helm-charts
-#- name: traefik
-#  url: https://helm.traefik.io/traefik
-#- name: jetstack
-#  url: https://charts.jetstack.io
-#- name: emberstack
-#  url: https://emberstack.github.io/helm-charts
 
 releases:
 - name: raz-stack-shared
@@ -18,21 +12,7 @@ releases:
   - cert-manager/cert-manager-webhook-namecheap
   - shared/k8s-db-operator
   values:
-  - ./values.yaml
-  - imagePullToken: {{ env "IMAGE_PULL_TOKEN" | quote }}
-  - namecheap:
-      apiKey: {{ requiredEnv "NAMECHEAP_API_KEY" | quote }}
-      apiUser: {{ requiredEnv "NAMECHEAP_API_USER" | quote }}
-  - vpn:
-      serviceProvider: {{ env "VPN_SERVICE_PROVIDER" | quote }}
-      serverHostnames: {{ env "VPN_SERVER_HOSTNAMES" | quote }}
-      openvpn:
-        user: {{ env "OPENVPN_USER" | quote }}
-        password: {{ env "OPENVPN_PASSWORD" | quote }}
-  - stream:
-      publish:
-        username: {{ env "STREAM_PUBLISH_USERNAME" | quote }}
-        password: {{ env "STREAM_PUBLISH_PASSWORD" | quote }}
+  - ./values.yaml.gotmpl
 
 - name: traefik
   namespace: traefik
@@ -64,5 +44,5 @@ releases:
   namespace: shared
   chart: razzie/k8s-db-operator
   values:
-  - ./values.yaml
+  - ./values.yaml.gotmpl
   - version: v1.0

@@ -1,23 +1,13 @@
 repositories:
 - name: razzie
   url: https://razzie.github.io/helm-charts
-#- name: nextcloud
-#  url: https://nextcloud.github.io/helm
 
 releases:
 - name: nextcloud-deps
   namespace: nextcloud
   chart: .
   values:
-  - ./values.yaml
-  - nextcloud:
-      s3:
-        bucket: {{ env "NEXTCLOUD_S3_BUCKET" | quote }}
-        endpoint: {{ env "NEXTCLOUD_S3_ENDPOINT" | quote }}
-        region: {{ env "NEXTCLOUD_S3_REGION" | quote }}
-        accessKey: {{ env "NEXTCLOUD_S3_ACCESS_KEY" | quote }}
-        secretKey: {{ env "NEXTCLOUD_S3_SECRET_KEY" | quote }}
-      backupPassword: {{ env "NEXTCLOUD_BACKUP_PASSWORD" | quote }}
+  - ./values.yaml.gotmpl
 
 - name: nextcloud
   namespace: nextcloud
@@ -25,4 +15,4 @@ releases:
   needs:
   - nextcloud/nextcloud-deps
   values:
-  - ./values.yaml
+  - ./values.yaml.gotmpl

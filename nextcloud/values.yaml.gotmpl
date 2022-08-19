@@ -17,13 +17,13 @@ nextcloud:
   password: password
 
   s3:
-    bucket: #NEXTCLOUD_S3_BUCKET
-    endpoint: #NEXTCLOUD_S3_ENDPOINT
-    region: #NEXTCLOUD_S3_REGION
-    accessKey: #NEXTCLOUD_S3_ACCESS_KEY
-    secretKey: #NEXTCLOUD_S3_SECRET_KEY
+    bucket: {{ env "NEXTCLOUD_S3_BUCKET" | quote }}
+    endpoint: {{ env "NEXTCLOUD_S3_ENDPOINT" | quote }}
+    region: {{ env "NEXTCLOUD_S3_REGION" | quote }}
+    accessKey: {{ env "NEXTCLOUD_S3_ACCESS_KEY" | quote }}
+    secretKey: {{ env "NEXTCLOUD_S3_SECRET_KEY" | quote }}
 
-  backupPassword: #NEXTCLOUD_BACKUP_PASSWORD
+  backupPassword: {{ env "NEXTCLOUD_BACKUP_PASSWORD" | quote }}
 
   configs:
     custom.config.php: |-

@@ -1,0 +1,13 @@
+image:
+  repository: ghcr.io/razzie/docker-mailserver
+  tag: 11.1.0
+
+email:
+  accounts: {{ env "EMAIL_ACCOUNTS" | quote }}
+  password: {{ env "EMAIL_PASSWORD" | quote }}
+
+  relay:
+    host: {{ env "EMAIL_RELAY_HOST" | quote }}
+    port: {{ env "EMAIL_RELAY_PORT" | quote }}
+    username: {{ env "EMAIL_RELAY_USERNAME" | quote }}
+    password: {{ env "EMAIL_RELAY_PASSWORD" | quote }}
