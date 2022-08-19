@@ -61,7 +61,9 @@ data:
     hlsEncryption: true
     hlsServerKey: /cert/tls.key
     hlsServerCert: /cert/tls.crt
-    hlsTrustedProxies: []
+    {{- with (first (lookup "v1" "Service" "traefik" "traefik").status.loadBalancer.ingress) }}
+    hlsTrustedProxies: [{{ .ip | quote }}]
+    {{- end }}
 
     paths:
       all:
