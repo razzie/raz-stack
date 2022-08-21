@@ -23,8 +23,8 @@ data:
   cloud-torrent.yaml: |
     DownloadDirectory: /downloads
     WatchDirectory: /torrents
-    AutoStart: true
-    AllowRuntimeConfigure: true
+    AutoStart: false
+    AllowRuntimeConfigure: false
     EngineDebug: false
     MuteEngineLog: true
     ObfsPreferred: true
