@@ -1,0 +1,97 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: stream-manager-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`stream-manager.gorzsony.com`)
+    kind: Rule
+    services:
+    - name: stream-manager
+      port: 8080
+  tls:
+    secretName: mirror-gorzsony-com-cert
+---
+{{ if or .Values.stream.username .Values.stream.password }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: stream-manager-secret
+type: Opaque
+data:
+  username: {{ .Values.stream.username | b64enc | quote }}
+  password: {{ .Values.stream.password | b64enc | quote }}
+---
+{{ end }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: stream-manager
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: stream-manager
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stream-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stream-manager
+  template:
+    metadata:
+      labels:
+        app: stream-manager
+    spec:
+      containers:
+      - name: stream-manager
+        image: ghcr.io/razzie/stream-manager:v1.0
+        args:
+        - -user
+        - "$(USERNAME)"
+        - -pass
+        - "$(PASSWORD)"
+        - -target
+        {{- if or .Values.stream.username .Values.stream.password }}
+        - "rtsp://$(USERNAME):$(PASSWORD)@stream-server.shared.svc.cluster.local"
+        {{- else }}
+        - "rtsp://stream-server.shared.svc.cluster.local"
+        {{- end }}
+        - -port
+        - "8080"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: stream-manager-secret
+              key: username
+              optional: true
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: stream-manager-secret
+              key: password
+              optional: true
+        resources:
+          requests:
+            memory: "8Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        volumeMounts:
+        - mountPath: /data
+          name: storage-vol
+      volumes:
+      - name: storage-vol
+        hostPath:
+          path: /data/downloads

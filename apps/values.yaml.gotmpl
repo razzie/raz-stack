@@ -5,3 +5,8 @@ githubToken: {{ env "GITHUB_TOKEN" | quote }}
 torrent:
   username: {{ env "TORRENT_USERNAME" | quote }}
   password: {{ env "TORRENT_PASSWORD" | quote }}
+
+# reusing stream server creds because why not
+stream:
+  username: {{ env "STREAM_PUBLISH_USERNAME" | quote }}
+  password: {{ env "STREAM_PUBLISH_PASSWORD" | quote }}
