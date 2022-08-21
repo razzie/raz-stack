@@ -107,10 +107,10 @@ spec:
         resources:
           requests:
             memory: "32Mi"
-            cpu: "100m"
+            cpu: "25m"
           limits:
             memory: "256Mi"
-            cpu: "500m"
+            cpu: "100m"
         volumeMounts:
         - mountPath: /downloads
           subPath: downloads

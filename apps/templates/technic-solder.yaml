@@ -102,10 +102,10 @@ spec:
         resources:
           requests:
             memory: "64Mi"
-            cpu: "100m"
+            cpu: "25m"
           limits:
             memory: "128Mi"
-            cpu: "100m"
+            cpu: "25m"
         volumeMounts:
         - mountPath: /var/lib/solder
           name: storage-vol
@@ -122,10 +122,10 @@ spec:
         resources:
           requests:
             memory: "8Mi"
-            cpu: "100m"
+            cpu: "25m"
           limits:
             memory: "16Mi"
-            cpu: "100m"
+            cpu: "25m"
       volumes:
       - name: storage-vol
         persistentVolumeClaim:
