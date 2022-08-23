@@ -1,14 +1,14 @@
-{{ if .Values.vpn.serviceProvider }}
+{{ if .Values.vpn.enabled }}
 apiVersion: v1
 kind: Secret
 metadata:
   name: vpn-secret
 type: Opaque
 data:
-  vpn_service_provider: {{ .Values.vpn.serviceProvider | b64enc | quote }}
-  vpn_server_hostnames: {{ .Values.vpn.serverHostnames | b64enc | quote }}
-  openvpn_user: {{ .Values.vpn.openvpn.user | b64enc | quote }}
-  openvpn_password: {{ .Values.vpn.openvpn.password | b64enc | quote }}
+  VPN_SERVICE_PROVIDER: {{ .Values.vpn.serviceProvider | b64enc | quote }}
+  SERVER_HOSTNAMES: {{ .Values.vpn.serverHostnames | b64enc | quote }}
+  OPENVPN_USER: {{ .Values.vpn.openvpn.user | b64enc | quote }}
+  OPENVPN_PASSWORD: {{ .Values.vpn.openvpn.password | b64enc | quote }}
 {{ end }}
 ---
 apiVersion: v1
@@ -37,32 +37,15 @@ spec:
         app: vpn-socks
     spec:
       containers:
-      {{- if .Values.vpn.serviceProvider }}
+      {{- if .Values.vpn.enabled }}
       - name: vpn
         image: ghcr.io/razzie/gluetun:v3.30.0
+        envFrom:
+        - secretRef:
+            name: vpn-secret
         env:
-        - name: VPN_SERVICE_PROVIDER
-          valueFrom:
-            secretKeyRef:
-              name: vpn-secret
-              key: vpn_service_provider
         - name: VPN_TYPE
           value: openvpn
-        - name: SERVER_HOSTNAMES
-          valueFrom:
-            secretKeyRef:
-              name: vpn-secret
-              key: vpn_server_hostnames
-        - name: OPENVPN_USER
-          valueFrom:
-            secretKeyRef:
-              name: vpn-secret
-              key: openvpn_user
-        - name: OPENVPN_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: vpn-secret
-              key: openvpn_password
         - name: OPENVPN_PROTOCOL
           value: udp
         - name: TZ

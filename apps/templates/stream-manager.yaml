@@ -1,3 +1,4 @@
+{{ if .Values.streamMgr.enabled }}
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
@@ -14,17 +15,15 @@ spec:
   tls:
     secretName: mirror-gorzsony-com-cert
 ---
-{{ if or .Values.stream.username .Values.stream.password }}
 apiVersion: v1
 kind: Secret
 metadata:
   name: stream-manager-secret
 type: Opaque
 data:
-  username: {{ .Values.stream.username | b64enc | quote }}
-  password: {{ .Values.stream.password | b64enc | quote }}
+  USERNAME: {{ .Values.streamMgr.username | b64enc | quote }}
+  PASSWORD: {{ .Values.streamMgr.password | b64enc | quote }}
 ---
-{{ end }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -59,34 +58,24 @@ spec:
         - -pass
         - "$(PASSWORD)"
         - -target
-        {{- if or .Values.stream.username .Values.stream.password }}
-        - "rtsp://$(USERNAME):$(PASSWORD)@stream-server.shared.svc.cluster.local"
+        {{- if or .Values.streamMgr.username .Values.streamMgr.password }}
+        - "rtsp://$(USERNAME):$(PASSWORD)@stream-server.shared.svc.cluster.local:8554"
         {{- else }}
-        - "rtsp://stream-server.shared.svc.cluster.local"
+        - "rtsp://stream-server.shared.svc.cluster.local:8554"
         {{- end }}
         - -port
         - "8080"
         ports:
         - containerPort: 8080
-        env:
-        - name: USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: stream-manager-secret
-              key: username
-              optional: true
-        - name: PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: stream-manager-secret
-              key: password
-              optional: true
+        envFrom:
+        - secretRef:
+            name: stream-manager-secret
         resources:
           requests:
             memory: "8Mi"
             cpu: "25m"
           limits:
-            memory: "256Mi"
+            memory: "1Gi"
             cpu: "500m"
         volumeMounts:
         - mountPath: /data
@@ -95,3 +84,4 @@ spec:
       - name: storage-vol
         hostPath:
           path: /data/downloads
+{{ end }}

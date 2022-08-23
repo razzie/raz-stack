@@ -1,4 +1,4 @@
-{{ if .Values.publicBucketUrl }}
+{{ if .Values.downloadServer.enabled }}
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
@@ -21,7 +21,7 @@ metadata:
   name: download-server-config
 data:
   config: |
-    download.gorzsony.com -> s3://{{ .Values.publicBucketUrl }}
+    download.gorzsony.com -> s3://{{ .Values.downloadServer.bucketURL }}
 ---
 apiVersion: v1
 kind: Service

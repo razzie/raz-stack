@@ -1,12 +1,22 @@
-publicBucketUrl: {{ env "PUBLIC_BUCKET_URL" | quote }}
-pizzabotToken: {{ env "PIZZABOT_TOKEN" | quote }}
-githubToken: {{ env "GITHUB_TOKEN" | quote }}
+downloadServer:
+  enabled: {{ not (empty (env "PUBLIC_BUCKET_URL")) }}
+  bucketURL: {{ env "PUBLIC_BUCKET_URL" | quote }}
+
+pizzabot:
+  enabled: {{ not (empty (env "PIZZABOT_TOKEN")) }}
+  token: {{ env "PIZZABOT_TOKEN" | quote }}
+
+website:
+  githubToken: {{ env "GITHUB_TOKEN" | quote }}
 
 torrent:
+  enabled: {{ not (empty (env "TORRENT_USERNAME")) }}
+  useVPN: {{ not (empty (env "VPN_SERVICE_PROVIDER")) }}
   username: {{ env "TORRENT_USERNAME" | quote }}
   password: {{ env "TORRENT_PASSWORD" | quote }}
 
-# reusing stream server creds because why not
-stream:
+streamMgr:
+  enabled: {{ not (empty (env "STREAM_PUBLISH_USERNAME")) }}
+  # reusing stream server creds because why not
   username: {{ env "STREAM_PUBLISH_USERNAME" | quote }}
   password: {{ env "STREAM_PUBLISH_PASSWORD" | quote }}

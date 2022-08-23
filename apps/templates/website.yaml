@@ -36,7 +36,7 @@ metadata:
   name: website-secret
 type: Opaque
 data:
-  githubToken: {{ .Values.githubToken | b64enc | quote }}
+  GITHUB_TOKEN: {{ .Values.website.githubToken | b64enc | quote }}
 ---
 apiVersion: v1
 kind: Service
@@ -68,12 +68,9 @@ spec:
         image: ghcr.io/razzie/gorzsony.com:latest
         ports:
         - containerPort: 8080
-        env:
-        - name: GITHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: website-secret
-              key: githubToken
+        envFrom:
+        - secretRef:
+            name: website-secret
         resources:
           requests:
             memory: "8Mi"

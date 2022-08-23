@@ -1,3 +1,4 @@
+{{ if .Values.stream.enabled }}
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRouteTCP
 metadata:
@@ -12,19 +13,20 @@ spec:
       port: 8554
 ---
 apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRouteTCP
+kind: IngressRoute
 metadata:
   name: stream-server-hls-route
 spec:
   entryPoints:
   - websecure
   routes:
-  - match: HostSNI(`stream.gorzsony.com`)
+  - match: Host(`stream.gorzsony.com`)
+    kind: Rule
     services:
     - name: stream-server
-      port: 8443
+      port: 8080
   tls:
-    passthrough: true
+    secretName: gorzsony-com-cert
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -50,17 +52,14 @@ data:
     rtmpDisable: yes
 
     hlsDisable: no
-    hlsAddress: :8443
+    hlsAddress: :8080
     hlsAlwaysRemux: yes
-    hlsVariant: lowLatency
+    hlsVariant: fmp4
     hlsSegmentCount: 7
     hlsSegmentDuration: 1s
-    hlsPartDuration: 200ms
     hlsSegmentMaxSize: 10M
     hlsAllowOrigin: '*'
-    hlsEncryption: true
-    hlsServerKey: /cert/tls.key
-    hlsServerCert: /cert/tls.crt
+    hlsEncryption: no
     {{- with (first (lookup "v1" "Service" "traefik" "traefik").status.loadBalancer.ingress) }}
     hlsTrustedProxies: [{{ .ip | quote }}]
     {{- end }}
@@ -89,7 +88,7 @@ spec:
     name: rtsp
   - port: 8322
     name: rtsps
-  - port: 8443
+  - port: 8080
     name: hls
   selector:
     app: stream-server
@@ -114,14 +113,14 @@ spec:
         ports:
         - containerPort: 8554
         - containerPort: 8322
-        - containerPort: 8443
+        - containerPort: 8080
         resources:
           requests:
             memory: "64Mi"
             cpu: "25m"
           limits:
             memory: "256Mi"
-            cpu: "500m"
+            cpu: "100m"
         volumeMounts:
         - mountPath: /rtsp-simple-server.yml
           subPath: rtsp-simple-server.yml
@@ -136,3 +135,4 @@ spec:
       - name: cert-vol
         secret:
           secretName: gorzsony-com-cert
+{{ end }}

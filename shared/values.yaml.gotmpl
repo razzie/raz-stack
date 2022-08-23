@@ -11,6 +11,7 @@ namecheap:
   apiUser: {{ requiredEnv "NAMECHEAP_API_USER" | quote }}
 
 vpn:
+  enabled: {{ not (empty (env "VPN_SERVICE_PROVIDER")) }}
   serviceProvider: {{ env "VPN_SERVICE_PROVIDER" | quote }}
   serverHostnames: {{ env "VPN_SERVER_HOSTNAMES" | quote }}
   openvpn:
@@ -18,6 +19,7 @@ vpn:
     password: {{ env "OPENVPN_PASSWORD" | quote }}
 
 stream:
+  enabled: {{ not (empty (env "STREAM_PUBLISH_USERNAME")) }}
   publish:
     username: {{ env "STREAM_PUBLISH_USERNAME" | quote }}
     password: {{ env "STREAM_PUBLISH_PASSWORD" | quote }}

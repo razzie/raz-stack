@@ -1,4 +1,4 @@
-{{ if and .Values.torrent.username .Values.torrent.password }}
+{{ if .Values.torrent.enabled }}
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
@@ -44,7 +44,9 @@ data:
     TrackerListURL: https:#raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt
     AlwaysAddTrackers: true
     MaxConcurrentTask: 0
+    {{- if .Values.torrent.useVPN }}
     ProxyURL: socks5:#vpn-socks.shared.svc.cluster.local:1080
+    {{- end }}
     # ScraperURL: https:#raw.githubusercontent.com/boypt/simple-torrent/master/scraper-config.json
 ---
 apiVersion: v1
@@ -53,8 +55,8 @@ metadata:
   name: torrent-secret
 type: Opaque
 data:
-  username: {{ .Values.torrent.username | b64enc | quote }}
-  password: {{ .Values.torrent.password | b64enc | quote }}
+  USERNAME: {{ .Values.torrent.username | b64enc | quote }}
+  PASSWORD: {{ .Values.torrent.password | b64enc | quote }}
 ---
 apiVersion: v1
 kind: Service
@@ -93,17 +95,9 @@ spec:
         - "$(USERNAME):$(PASSWORD)"
         ports:
         - containerPort: 8080
-        env:
-        - name: USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: torrent-secret
-              key: username
-        - name: PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: torrent-secret
-              key: password
+        envFrom:
+        - secretRef:
+            name: torrent-secret
         resources:
           requests:
             memory: "32Mi"
