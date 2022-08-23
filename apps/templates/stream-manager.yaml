@@ -24,6 +24,14 @@ data:
   USERNAME: {{ .Values.streamMgr.username | b64enc | quote }}
   PASSWORD: {{ .Values.streamMgr.password | b64enc | quote }}
 ---
+apiVersion: k8s-db-operator.razzie.github.io/v1alpha1
+kind: DatabaseClaim
+metadata:
+  name: stream-manager-dbclaim
+spec:
+  databaseType: Redis
+  secretName: stream-manager-redis-secret
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -51,7 +59,7 @@ spec:
     spec:
       containers:
       - name: stream-manager
-        image: ghcr.io/razzie/stream-manager:v1.0
+        image: ghcr.io/razzie/stream-manager:v1.1
         args:
         - -user
         - "$(USERNAME)"
@@ -65,18 +73,26 @@ spec:
         {{- end }}
         - -port
         - "8080"
+        - -redis
+        - "$(REDIS_ADDR)"
         ports:
         - containerPort: 8080
         envFrom:
         - secretRef:
             name: stream-manager-secret
+        env:
+        - name: REDIS_ADDR
+          valueFrom:
+            secretKeyRef:
+              name: stream-manager-redis-secret
+              key: connectionString
         resources:
           requests:
             memory: "8Mi"
             cpu: "25m"
           limits:
             memory: "1Gi"
-            cpu: "500m"
+            cpu: "2000m"
         volumeMounts:
         - mountPath: /data
           name: storage-vol
