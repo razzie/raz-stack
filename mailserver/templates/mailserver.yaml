@@ -1,4 +1,3 @@
-{{ if .Values.email.accounts }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -33,36 +32,21 @@ spec:
       labels:
         app: mailserver
     spec:
-      initContainers:
-      - name: init-accounts
-        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-        command:
-        - sh
-        args:
-        - -c
-        - /var/mail-config/init-accounts.sh && cp /var/mail-config/*.cf /tmp/docker-mailserver/
-        env:
-        - name: EMAIL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mailserver-secret
-              key: password
-        volumeMounts:
-        - mountPath: "/var/mail-config"
-          name: config-vol
-        - mountPath: "/tmp/docker-mailserver"
-          name: live-config-vol
       containers:
       - name: mailserver
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-        {{- if .Values.email.relay.host }}
         lifecycle:
           postStart:
             exec:
               command:
-                - postmap
-                - hash:/etc/postfix/sasl_passwd
-        {{- end }}
+                - sh
+                - -c
+                - >
+                  mkdir -p /tmp/docker-mailserver;
+                  cp /mailserver-config/* /tmp/docker-mailserver/;
+                  {{- if .Values.email.relay.enabled }}
+                  postmap hash:/tmp/docker-mailserver/sasl_passwd;
+                  {{- end }}
         ports:
         - containerPort: 25
         - containerPort: 465
@@ -100,28 +84,21 @@ spec:
         - mountPath: "/var/log/mail"
           subPath: log
           name: storage-vol
-        - mountPath: "/tmp/docker-mailserver"
-          name: live-config-vol
-        - mountPath: "/etc/postfix/sasl_passwd"
-          subPath: sasl_passwd
-          name: relay-config-vol
+        - mountPath: "/mailserver-config"
+          name: config-vol
         - mountPath: "/var/mail-certs"
-          name: certs-vol
+          name: cert-vol
       volumes:
       - name: storage-vol
         persistentVolumeClaim:
           claimName: mailserver-pvc
       - name: config-vol
-        configMap:
-          name: mailserver-config
-          defaultMode: 0777
-      - name: live-config-vol
-        emptyDir: {}
-      - name: relay-config-vol
+        projected:
+          sources:
+          - configMap:
+              name: mailserver-config
+          - secret:
+              name: mailserver-secret
+      - name: cert-vol
         secret:
-          secretName: mailserver-relay-secret
-          optional: true
-      - name: certs-vol
-        secret:
-          secretName: mailserver-cert
-{{ end }}
+          secretName: mirror-gorzsony-com-cert

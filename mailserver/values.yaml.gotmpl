@@ -3,11 +3,19 @@ image:
   tag: 11.1.0
 
 email:
-  accounts: {{ env "EMAIL_ACCOUNTS" | quote }}
-  password: {{ env "EMAIL_PASSWORD" | quote }}
+  {{- $accounts := (split "," (env "EMAIL_ACCOUNTS")) }}
+  {{- $password := (env "EMAIL_PASSWORD") }}
+  accounts: {{ if empty $accounts }}[]{{ end }}
+  {{- range $accounts }}
+  - account: {{ . | quote }}
+    password: {{ $password | quote }}
+  {{- end }}
 
   relay:
+    enabled: {{ not (empty (env "EMAIL_RELAY_HOST")) }}
     host: {{ env "EMAIL_RELAY_HOST" | quote }}
     port: {{ env "EMAIL_RELAY_PORT" | quote }}
     username: {{ env "EMAIL_RELAY_USERNAME" | quote }}
     password: {{ env "EMAIL_RELAY_PASSWORD" | quote }}
+
+  storageCapacity: 3Gi

@@ -1,4 +1,3 @@
-{{ if .Values.email.accounts }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,12 +5,12 @@ metadata:
 data:
   postfix-main.cf: |
     postscreen_upstream_proxy_protocol = haproxy
-    {{- if .Values.email.relay.host }}
+    {{- if .Values.email.relay.enabled }}
     relayhost = [{{ .Values.email.relay.host }}]:{{ .Values.email.relay.port }}
     smtp_use_tls = yes
     smtp_tls_security_level = encrypt
     smtp_sasl_auth_enable = yes
-    smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+    smtp_sasl_password_maps = hash:/tmp/docker-mailserver/sasl_passwd
     smtp_sasl_security_options = noanonymous
     smtp_sasl_tls_security_options = noanonymous
     {{- end }}
@@ -39,32 +38,18 @@ data:
         port = 10995
       }
     }
-  init-accounts.sh: |
-    !#/bin/sh
-    {{- $accounts := (split "," .Values.email.accounts) }}
-    {{- $domains := list }}
-    {{- range $accounts }}
-    setup email add {{ . }} $EMAIL_PASSWORD
-    {{- $domains = append $domains (split "@" .)._1 }}
-    {{- end }}
-    #setup config dkim domain '{{ $domains | uniq | join "," }}'
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   name: mailserver-secret
 type: Opaque
-data:
-  password: {{ .Values.email.password | b64enc | quote }}
-{{ if .Values.email.relay.host }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: mailserver-relay-secret
-type: Opaque
 stringData:
-  sasl_passwd: |
+  postfix-accounts.cf: |-
+    {{- range .Values.email.accounts }}
+    {{ .account }}|{BLF-CRYPT}{{ bcrypt .password }}
+    {{- end }}
+  {{- if .Values.email.relay.enabled }}
+  sasl_passwd: |-
     [{{ .Values.email.relay.host }}]:{{ .Values.email.relay.port }}  {{ .Values.email.relay.username }}:{{ .Values.email.relay.password }}
-{{ end }}
-{{ end }}
+  {{- end }}

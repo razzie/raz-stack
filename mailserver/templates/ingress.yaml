@@ -1,4 +1,3 @@
-{{ if .Values.email.accounts }}
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRouteTCP
 metadata:
@@ -58,4 +57,3 @@ spec:
       port: 995
       proxyProtocol:
         version: 2
-{{ end }}
