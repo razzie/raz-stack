@@ -12,16 +12,14 @@ service:
     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
 
 ports:
-{{ $ports := list "smtp:25" "smtp-tls:465" "imap-tls:993" "pop3-tls:995" "rtsp:554" }}
-{{ range $ports }}
-  {{- with (split ":" .) }}
-  {{ ._0 }}:
-    port: {{ add 10000 (int ._1) }}
-    exposedPort: {{ ._1 }}
+{{- $ports := dict "smtp" 25 "smtp-tls" 465 "imap-tls" 993 "pop3-tls" 995 "rtsp" 554 }}
+{{- range $name, $port := $ports }}
+  {{ $name }}:
+    port: {{ add 10000 $port }}
+    exposedPort: {{ $port }}
     expose: true
     protocol: TCP
-  {{- end }}
-{{ end }}
+{{- end }}
 
 envFrom:
 - configMapRef:
@@ -31,8 +29,8 @@ additionalArguments:
 - --entrypoints.web.http.redirections.entryPoint.to=:443
 - --entrypoints.web.http.redirections.entryPoint.scheme=https
 - --entrypoints.web.http.redirections.entrypoint.permanent=true
-{{- $proxyProtocolEntrypoints := list "web" "websecure" "smtp" "smtp-tls" "imap-tls" "pop3-tls" "rtsp" }}
-{{- range $proxyProtocolEntrypoints }}
+{{- $entrypoints := concat (list "web" "websecure") (keys $ports) }}
+{{- range $entrypoints }}
 - --entryPoints.{{ . }}.proxyProtocol.trustedIPs=$(EXTERNAL_IP)/32,10.0.0.0/8
 - --entryPoints.{{ . }}.forwardedHeaders.trustedIPs=$(EXTERNAL_IP)/32,10.0.0.0/8
 {{- end }}
