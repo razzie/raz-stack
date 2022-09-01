@@ -127,6 +127,10 @@ nextcloud:
       secretKeyRef:
         name: nextcloud-s3-secret
         key: secretKey
+  - name: PHP_MEMORY_LIMIT
+    value: 512M
+  - name: PHP_UPLOAD_LIMIT
+    value: 32G
 
 cronjob:
   enabled: true
