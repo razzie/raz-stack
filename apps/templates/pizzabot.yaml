@@ -5,7 +5,7 @@ metadata:
   name: pizzabot-secret
 type: Opaque
 data:
-  token: {{ .Values.pizzabot.token | b64enc | quote }}
+  PIZZABOT_TOKEN: {{ .Values.pizzabot.token | b64enc | quote }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -24,12 +24,11 @@ spec:
       containers:
       - name: pizzabot
         image: ghcr.io/razzie/pizzabot:v1.0
-        env:
-        - name: PIZZABOT_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: pizzabot-secret
-              key: token
+        args:
+        - $(PIZZABOT_TOKEN)
+        envFrom:
+        - secretRef:
+            name: pizzabot-secret
         resources:
           requests:
             memory: "8Mi"
