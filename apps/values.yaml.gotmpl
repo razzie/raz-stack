@@ -8,15 +8,3 @@ pizzabot:
 
 website:
   githubToken: {{ env "GITHUB_TOKEN" | quote }}
-
-torrent:
-  enabled: {{ not (empty (env "TORRENT_USERNAME")) }}
-  useVPN: {{ not (empty (env "VPN_SERVICE_PROVIDER")) }}
-  username: {{ env "TORRENT_USERNAME" | quote }}
-  password: {{ env "TORRENT_PASSWORD" | quote }}
-
-streamMgr:
-  enabled: {{ not (empty (env "STREAM_PUBLISH_USERNAME")) }}
-  # reusing stream server creds because why not
-  username: {{ env "STREAM_PUBLISH_USERNAME" | quote }}
-  password: {{ env "STREAM_PUBLISH_PASSWORD" | quote }}

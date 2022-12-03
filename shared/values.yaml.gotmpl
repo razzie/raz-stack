@@ -1,5 +1,3 @@
-imagePullToken: {{ env "IMAGE_PULL_TOKEN" | quote }}
-
 certOwner: gabor@gorzsony.com
 
 certs:
@@ -9,20 +7,6 @@ certs:
 namecheap:
   apiKey: {{ requiredEnv "NAMECHEAP_API_KEY" | quote }}
   apiUser: {{ requiredEnv "NAMECHEAP_API_USER" | quote }}
-
-vpn:
-  enabled: {{ not (empty (env "VPN_SERVICE_PROVIDER")) }}
-  serviceProvider: {{ env "VPN_SERVICE_PROVIDER" | quote }}
-  serverHostnames: {{ env "VPN_SERVER_HOSTNAMES" | quote }}
-  openvpn:
-    user: {{ env "OPENVPN_USER" | quote }}
-    password: {{ env "OPENVPN_PASSWORD" | quote }}
-
-stream:
-  enabled: {{ not (empty (env "STREAM_PUBLISH_USERNAME")) }}
-  publish:
-    username: {{ env "STREAM_PUBLISH_USERNAME" | quote }}
-    password: {{ env "STREAM_PUBLISH_PASSWORD" | quote }}
 
 databases:
   postgres:
