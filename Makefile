@@ -18,6 +18,10 @@ mailserver:
 nextcloud:
 	@$(shell xargs < .env) helmfile -f nextcloud/helmfile.yaml sync
 
+.PHONY: irc
+irc:
+	@$(shell xargs < .env) helmfile -f irc/helmfile.yaml sync
+
 .PHONY: check-images
 check-images:
 	kubectl get pods --all-namespaces -o jsonpath="{.items[*].spec.containers[*].image}" |\

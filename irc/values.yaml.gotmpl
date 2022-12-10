@@ -1,0 +1,12 @@
+ircd:
+  admin:
+    password: {{ env "IRCD_ADMIN_PASSWORD" | quote }}
+
+  image:
+    repository: ghcr.io/razzie/unrealircd
+    tag: sha-a5cafe23
+
+webircgateway:
+  image:
+    repository: ghcr.io/razzie/kiwiirc
+    tag: latest

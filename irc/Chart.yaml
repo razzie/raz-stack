@@ -1,0 +1,4 @@
+apiVersion: v2
+name: raz-irc
+description: Helm chart for UnrealIRCD and KiwiIRC
+version: 0.0.1

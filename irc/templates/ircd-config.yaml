@@ -1,0 +1,224 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ircd-config
+data:
+  unrealircd.conf: |
+    include "modules.default.conf";
+    
+    include "help/help.conf";
+    include "operclass.default.conf";
+
+    me {
+      name "irc.razzie.xyz";
+      info "Razzie's IRC server";
+      sid "001";
+    }
+    
+    admin {
+      "Razzie";
+      "razzie";
+      "gabor@gorzsony.com";
+    }
+    
+    class clients
+    {
+      pingfreq 90;
+      maxclients 1000;
+      sendq 200k;
+      recvq 8000;
+    }
+    
+    class opers
+    {
+      pingfreq 90;
+      maxclients 50;
+      sendq 1M;
+      recvq 8000;
+    }
+    
+    allow {
+      ip *@*;
+      class clients;
+      maxperip 3;
+    }
+
+    oper razzie {
+      class opers;
+      mask *@*;
+      password {{ .Values.ircd.admin.password | quote }};
+      operclass netadmin;
+      swhois "is the owner";
+      vhost razzie.xyz;
+    }
+    
+    listen {
+      ip *;
+      port 6667;
+    }
+
+    listen {
+      ip *;
+      port 6697;
+      options {
+        ssl;
+      }
+    }
+
+    webirc {
+      mask 127.0.0.1/32;
+      type webirc;
+      password "";
+    };
+
+    log "/dev/stdout" {
+      flags {
+        oper;
+        connects;
+        server-connects;
+        kills;
+        errors;
+        sadmin-commands;
+        chg-commands;
+        oper-override;
+        tkl;
+        spamfilter;
+      }
+    }
+    
+    blacklist dronebl {
+      dns {
+        name dnsbl.dronebl.org;
+        type record;
+        reply { 3; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16; }
+      }
+      action gline;
+      ban-time 24h;
+      reason "Proxy/Drone detected. Check https://dronebl.org/lookup?ip=$ip for details.";
+    }
+    
+    blacklist efnetrbl {
+      dns {
+        name rbl.efnetrbl.org;
+        type record;
+        reply { 1; 4; 5; }
+      }
+      action gline;
+      ban-time 24h;
+      reason "Proxy/Drone/TOR detected. Check https://rbl.efnetrbl.org/?i=$ip for details.";
+    }
+    
+    set {
+      network-name "RazzieNET";
+      default-server "irc.razzie.xyz";
+      help-channel "#help";
+
+      cloak-keys {
+        {{ randAlphaNum 32 | quote }};
+        {{ randAlphaNum 32 | quote }};
+        {{ randAlphaNum 32 | quote }};
+      }
+
+      tls {
+        certificate "/ircd/tls/razzie.xyz/tls.crt";
+        key "/ircd/tls/razzie.xyz/tls.key";
+      }
+    }
+    
+    set {
+      kline-address "gabor@gorzsony.com";
+      modes-on-connect "+ixw";
+      modes-on-oper "+xws";
+      modes-on-join "+nt";
+      oper-auto-join "#opers";
+      options {
+        hide-ulines;
+        show-connect-info;
+      }
+    
+      maxchannelsperuser 10;
+    
+      static-quit "Client quit";
+      static-part yes;
+    
+      anti-flood {
+        nick-flood 3:60;
+        connect-flood 3:60;
+        away-flood 4:120;
+      }
+    
+      spamfilter {
+        ban-time 1d;
+        ban-reason "Spam/Advertising";
+        virus-help-channel "#help";
+      }
+    }
+    
+    set {
+      connthrottle {
+        known-users {
+          minimum-reputation-score 24;
+          sasl-bypass yes;
+        }
+    
+        new-users {
+          local-throttle 20:60;
+          global-throttle 30:60;
+        }
+    
+        disabled-when {
+          reputation-gathering 1w;
+          start-delay 3m;
+        }
+      }
+    }
+
+  webircgateway.conf: |
+    logLevel = 2
+    identd = false
+    gateway_name = "webircgateway"
+    secret = {{ randAlphaNum 32 | quote }}
+    
+    [verify]
+    required = false
+    
+    [server.1]
+    bind = "0.0.0.0"
+    port = 8080
+    
+    [fileserving]
+    enabled = false
+    webroot = www/
+    
+    [transports]
+    websocket
+    sockjs
+    kiwiirc
+    
+    [reverse_proxies]
+    127.0.0.0/8
+    10.0.0.0/8
+    172.16.0.0/12
+    192.168.0.0/16
+    "::1/128"
+    "fd00::/8"
+    
+    [upstream.1]
+    hostname = "ircd"
+    port = 6667
+    tls = false
+    timeout = 5
+    throttle = 2
+    webirc = ""
+    serverpassword = ""
+    protocol = tcp
+    localaddr = ""
+    
+    [gateway]
+    enabled = false
+    
+    [dnsbl]
+    action = deny
+    
+    [dnsbl.servers]
+    dnsbl.dronebl.org

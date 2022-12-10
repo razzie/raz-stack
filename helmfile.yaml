@@ -8,3 +8,4 @@ helmfiles:
 - ./apps/helmfile.yaml
 - ./mailserver/helmfile.yaml
 - ./nextcloud/helmfile.yaml
+- ./irc/helmfile.yaml

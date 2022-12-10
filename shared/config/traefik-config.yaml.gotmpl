@@ -12,7 +12,7 @@ service:
     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
 
 ports:
-{{- $ports := dict "smtp" 25 "smtp-tls" 465 "imap-tls" 993 "pop3-tls" 995 "rtsp" 554 }}
+{{- $ports := dict "smtp" 25 "smtp-tls" 465 "imap-tls" 993 "pop3-tls" 995 "irc-tls" 6697 }}
 {{- range $name, $port := $ports }}
   {{ $name }}:
     port: {{ add 10000 $port }}
