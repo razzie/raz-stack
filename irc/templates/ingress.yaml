@@ -1,20 +1,4 @@
 apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-  name: webirc-route
-spec:
-  entryPoints:
-  - websecure
-  routes:
-  - match: Host(`webirc.razzie.xyz`)
-    kind: Rule
-    services:
-    - name: ircd
-      port: 8080
-  tls:
-    secretName: mirror-razzie-xyz-cert
----
-apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRouteTCP
 metadata:
   name: irc-tls-route
@@ -30,4 +14,3 @@ spec:
         version: 2
   tls:
     secretName: mirror-razzie-xyz-cert
-    passthrough: false

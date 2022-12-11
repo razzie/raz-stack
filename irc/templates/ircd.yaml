@@ -6,11 +6,6 @@ spec:
   type: ClusterIP
   ports:
   - port: 6667
-    name: irc
-  - port: 6697
-    name: irc-tls
-  - port: 8080
-    name: webirc
   selector:
     app: ircd
 ---
@@ -33,41 +28,18 @@ spec:
       containers:
       - name: ircd
         image: {{ .Values.ircd.image.repository }}:{{ .Values.ircd.image.tag }}
-        command:
-        - /app/unrealircd/bin/unrealircd
-        args:
-        - -F
         ports:
         - containerPort: 6667
-        - containerPort: 6697
         volumeMounts:
-        - mountPath: "/ircd/unrealircd.conf"
-          subPath: unrealircd.conf
+        - mountPath: "/inspircd/conf/inspircd.conf"
+          subPath: ircd.conf
           name: config-vol
-        - mountPath: "/ircd/tls/razzie.xyz"
-          name: cert-vol
-        - mountPath: "/app/unrealircd/data"
+        - mountPath: "/inspircd/data"
           name: data-vol
-      - name: webircgateway
-        image: {{ .Values.webircgateway.image.repository }}:{{ .Values.webircgateway.image.tag }}
-        command:
-        - /kiwiirc/kiwiirc
-        args:
-        - --config
-        - /kiwiirc/webircgateway.conf
-        ports:
-        - containerPort: 8080
-        volumeMounts:
-        - mountPath: "/kiwiirc/webircgateway.conf"
-          subPath: webircgateway.conf
-          name: config-vol
       volumes:
       - name: config-vol
         configMap:
           name: ircd-config
-      - name: cert-vol
-        secret:
-          secretName: mirror-razzie-xyz-cert
       - name: data-vol
         persistentVolumeClaim:
           claimName: ircd-pvc
