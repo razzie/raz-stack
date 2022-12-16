@@ -27,7 +27,16 @@ spec:
       - name: imaginary
         image: ghcr.io/razzie/imaginary:35c87ba
         args:
+        - -p
+        - "9000"
         - -enable-url-source
         - -return-size
         ports:
         - containerPort: 9000
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "25m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

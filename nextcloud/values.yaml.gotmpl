@@ -79,8 +79,8 @@ nextcloud:
       $redisConnStr = parse_url(getenv('REDIS_ADDR'));
       $CONFIG = array (
         'memcache.local' => '\\OC\\Memcache\\Redis',
-        'memcache.distributed' => '\OC\Memcache\Redis',
-        'memcache.locking' => '\OC\Memcache\Redis',
+        'memcache.distributed' => '\\OC\\Memcache\\Redis',
+        'memcache.locking' => '\\OC\\Memcache\\Redis',
         'redis' => array(
           'host' => $redisConnStr['host'],
           'port' => $redisConnStr['port'],
@@ -151,7 +151,7 @@ nextcloud:
         name: nextcloud-s3-secret
         key: secretKey
   - name: PHP_MEMORY_LIMIT
-    value: 2G
+    value: "-1"
   - name: PHP_UPLOAD_LIMIT
     value: 32G
 
@@ -178,11 +178,20 @@ persistence:
   enabled: true
   size: 2Gi
 
-#livenessProbe:
-#  enabled: false
+livenessProbe:
+  enabled: true
+  failureThreshold: 6
 
-#readinessProbe:
-#  enabled: false
+readinessProbe:
+  enabled: false
 
-#startupProbe:
-#  enabled: false
+startupProbe:
+  enabled: false
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "200m"
+  limits:
+    memory: "2Gi"
+    cpu: "1500m"
