@@ -1,7 +1,8 @@
 image:
   repository: ghcr.io/razzie/nextcloud
-  tag: 25.0.2-apache-ffmpeg
+  tag: 25.0.2-apache-custom
   flavor: apache
+  pullPolicy: Always
 
 ingress:
   enabled: true # just for the cronjob
@@ -40,6 +41,8 @@ nextcloud:
            ],
         'directory' => getenv('NEXTCLOUD_DATA_DIR') ?: '/var/www/html/data',
         'enable_previews' => true,
+        'preview_max_x' => 4096,
+        'preview_max_y' => 4096,
         'enabledPreviewProviders' => [
           'OC\\Preview\\TXT',
           'OC\\Preview\\MarkDown',
