@@ -1,4 +1,22 @@
 apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: nextcloud-dav-redirect
+spec:
+  redirectRegex:
+    regex: "https://(.*)/.well-known/(card|cal)dav"
+    replacement: "https://${1}/remote.php/dav/"
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: nextcloud-transport-security
+spec:
+  headers:
+    customResponseHeaders:
+      Strict-Transport-Security: "max-age=15768000; includeSubDomains; preload"
+---
+apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: nextcloud-route
@@ -8,6 +26,11 @@ spec:
   routes:
   - match: Host(`nextcloud.razzie.xyz`)
     kind: Rule
+    middlewares:
+    - name: nextcloud-dav-redirect
+      namespace: nextcloud
+    - name: nextcloud-transport-security
+      namespace: nextcloud
     services:
     - name: nextcloud
       port: 8080

@@ -4,17 +4,10 @@ image:
   flavor: apache
   pullPolicy: Always
 
-ingress:
-  enabled: true # just for the cronjob
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
-  tls:
-  - secretName: mirror-razzie-xyz-cert
-    hosts:
-    - nextcloud.razzie.xyz
+fullnameOverride: nextcloud
 
 nextcloud:
-  host: nextcloud.razzie.xyz
+  host: nextcloud:8080
   username: razzie
   password: password
 
@@ -31,14 +24,23 @@ nextcloud:
     custom.config.php: |-
       <?php
       $CONFIG = array (
+        'overwritehost' => 'nextcloud.razzie.xyz',
         'overwriteprotocol' => 'https',
         'overwrite.cli.url' => 'https://nextcloud.razzie.xyz',
         'filelocking.enabled' => 'true',
         'loglevel' => '2',
         'trusted_domains' =>
-           [
+          [
             'nextcloud.razzie.xyz'
-           ],
+          ],
+        'trusted_proxies' =>
+          [
+            '10.0.0.0/8'
+          ],
+        'forwarded_for_headers' =>
+          [
+            'X-Forwarded-For'
+          ],
         'directory' => getenv('NEXTCLOUD_DATA_DIR') ?: '/var/www/html/data',
         'enable_previews' => true,
         'preview_max_x' => 4096,
@@ -65,6 +67,7 @@ nextcloud:
           'OC\\Preview\\Imaginary',
         ],
         'preview_imaginary_url' => 'http://imaginary.shared.svc.cluster.local:9000',
+        'default_phone_region' => 'HU',
       );
     postgres.config.php: |-
       <?php
