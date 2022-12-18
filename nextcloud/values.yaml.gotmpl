@@ -84,7 +84,7 @@ nextcloud:
       <?php
       $redisConnStr = parse_url(getenv('REDIS_ADDR'));
       $CONFIG = array (
-        'memcache.local' => '\\OC\\Memcache\\Redis',
+        'memcache.local' => '\\OC\\Memcache\\APCu',
         'memcache.distributed' => '\\OC\\Memcache\\Redis',
         'memcache.locking' => '\\OC\\Memcache\\Redis',
         'redis' => array(
