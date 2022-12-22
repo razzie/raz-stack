@@ -8,3 +8,9 @@ pizzabot:
 
 website:
   githubToken: {{ env "GITHUB_TOKEN" | quote }}
+
+ircd:
+  enabled: {{ not (empty (env "IRCD_ADMIN_PASSWORD")) }}
+  admin:
+    name: razzie
+    password: {{ env "IRCD_ADMIN_PASSWORD" | quote }}

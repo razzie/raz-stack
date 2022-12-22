@@ -1,3 +1,44 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: irc-tls-route
+spec:
+  entryPoints:
+  - irc-tls
+  routes:
+  - match: HostSNI(`*`)
+    services:
+    - name: ircd
+      port: 6667
+      proxyProtocol:
+        version: 2
+  tls:
+    secretName: mirror-razzie-xyz-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ircd
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6667
+  selector:
+    app: ircd
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ircd-pvc
+  annotations:
+    "helm.sh/resource-policy": "keep"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: "1G"
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -140,3 +181,38 @@ data:
             groupsize="10"
             maxgroups="100000"
             maxkeep="3d">
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ircd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ircd
+  template:
+    metadata:
+      labels:
+        app: ircd
+    spec:
+      securityContext:
+        fsGroup: 10000
+      containers:
+      - name: ircd
+        image: ghcr.io/razzie/inspircd:3.14.0
+        ports:
+        - containerPort: 6667
+        volumeMounts:
+        - mountPath: "/inspircd/conf/inspircd.conf"
+          subPath: ircd.conf
+          name: config-vol
+        - mountPath: "/inspircd/data"
+          name: data-vol
+      volumes:
+      - name: config-vol
+        configMap:
+          name: ircd-config
+      - name: data-vol
+        persistentVolumeClaim:
+          claimName: ircd-pvc

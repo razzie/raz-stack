@@ -1,6 +1,0 @@
-releases:
-- name: raz-irc
-  namespace: irc
-  chart: .
-  values:
-  - ./values.yaml.gotmpl
