@@ -1,0 +1,54 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: razchess-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`chess.razzie.xyz`)
+    kind: Rule
+    services:
+    - name: razchess
+      port: 8080
+  tls:
+    secretName: mirror-razzie-xyz-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: razchess
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: razchess
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: razchess
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: razchess
+  template:
+    metadata:
+      labels:
+        app: razchess
+    spec:
+      containers:
+      - name: razchess
+        image: ghcr.io/razzie/razchess:beta
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "8Mi"
+            cpu: "25m"
+          limits:
+            memory: "32Mi"
+            cpu: "100m"
