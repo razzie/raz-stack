@@ -14,6 +14,14 @@ spec:
   tls:
     secretName: mirror-razzie-xyz-cert
 ---
+apiVersion: k8s-db-operator.razzie.github.io/v1alpha1
+kind: DatabaseClaim
+metadata:
+  name: razchess-dbclaim
+spec:
+  databaseType: Redis
+  secretName: razchess-redis-secret
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -41,9 +49,18 @@ spec:
     spec:
       containers:
       - name: razchess
-        image: ghcr.io/razzie/razchess:v1.0
+        image: ghcr.io/razzie/razchess:v1.1
+        args:
+        - -redis
+        - $(REDIS_ADDR)
         ports:
         - containerPort: 8080
+        env:
+        - name: REDIS_ADDR
+          valueFrom:
+            secretKeyRef:
+              name: razchess-redis-secret
+              key: connectionString
         resources:
           requests:
             memory: "8Mi"
