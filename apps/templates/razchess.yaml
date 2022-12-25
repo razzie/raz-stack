@@ -1,7 +1,23 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: razchess-route
+  name: razchess-route1
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`chess.gorzsony.com`)
+    kind: Rule
+    services:
+    - name: razchess
+      port: 8080
+  tls:
+    secretName: mirror-gorzsony-com-cert
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: razchess-route2
 spec:
   entryPoints:
   - websecure
@@ -49,7 +65,7 @@ spec:
     spec:
       containers:
       - name: razchess
-        image: ghcr.io/razzie/razchess:v1.1
+        image: ghcr.io/razzie/razchess:v1.2
         args:
         - -redis
         - $(REDIS_ADDR)
