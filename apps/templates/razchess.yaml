@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
       - name: razchess
-        image: ghcr.io/razzie/razchess:v1.2
+        image: ghcr.io/razzie/razchess:v1.6.1
         args:
         - -redis
         - $(REDIS_ADDR)
@@ -82,5 +82,5 @@ spec:
             memory: "8Mi"
             cpu: "25m"
           limits:
-            memory: "32Mi"
-            cpu: "100m"
+            memory: "256Mi"
+            cpu: "1000m"
