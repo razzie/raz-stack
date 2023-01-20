@@ -66,6 +66,7 @@ spec:
       containers:
       - name: website
         image: ghcr.io/razzie/gorzsony.com:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         envFrom:
