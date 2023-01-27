@@ -3,6 +3,8 @@ image:
   tag: 2.8.0
 
 service:
+  spec:
+    externalTrafficPolicy: Local
   annotationsTCP:
     service.beta.kubernetes.io/linode-loadbalancer-default-proxy-protocol: "v2"
     service.beta.kubernetes.io/scw-loadbalancer-proxy-protocol-v2: "true"
