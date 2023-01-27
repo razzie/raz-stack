@@ -49,7 +49,7 @@ spec:
     spec:
       containers:
       - name: razlink
-        image: ghcr.io/razzie/razlink:v2.2
+        image: ghcr.io/razzie/razlink:v2.3
         args:
         - -redis
         - $(REDIS_ADDR)
