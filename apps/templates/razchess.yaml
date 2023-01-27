@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
       - name: razchess
-        image: ghcr.io/razzie/razchess:v1.6.1
+        image: ghcr.io/razzie/razchess:v1.8
         args:
         - -redis
         - $(REDIS_ADDR)
