@@ -1,6 +1,6 @@
 IMAGE_NAME := nextcloud
 IMAGE_REGISTRY ?= ghcr.io/razzie
-TAG ?= 25.0.2-apache
+TAG ?= 25.0.3-apache
 FULL_IMAGE_NAME := $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(TAG)
 
 .PHONY: docker-build
