@@ -17,6 +17,7 @@ nextcloud:
     region: {{ env "NEXTCLOUD_S3_REGION" | quote }}
     accessKey: {{ env "NEXTCLOUD_S3_ACCESS_KEY" | quote }}
     secretKey: {{ env "NEXTCLOUD_S3_SECRET_KEY" | quote }}
+    encryptionKey: {{ env "NEXTCLOUD_s3_ENCRYPTION_KEY" | quote }}
 
   backupPassword: {{ env "NEXTCLOUD_BACKUP_PASSWORD" | quote }}
 
@@ -104,8 +105,8 @@ nextcloud:
             'key'        => getenv('S3_ACCESS_KEY'),
             'secret'     => getenv('S3_SECRET_KEY'),
             'region'     => getenv('S3_REGION'),
-            'hostname'   => getenv('S3_ENDPOINT'),
-            'use_ssl'    => true,
+            'hostname'   => 's3proxy:8080', //getenv('S3_ENDPOINT'),
+            'use_ssl'    => false,
             'use_path_style' => true
           )
         )
