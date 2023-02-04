@@ -42,7 +42,7 @@ nextcloud:
           [
             'X-Forwarded-For'
           ],
-        'directory' => getenv('NEXTCLOUD_DATA_DIR') ?: '/var/www/html/data',
+        'datadirectory' => getenv('NEXTCLOUD_DATA_DIR') ?: '/var/www/html/data',
         'enable_previews' => true,
         'preview_max_x' => 4096,
         'preview_max_y' => 4096,
@@ -79,7 +79,7 @@ nextcloud:
         'dbuser' => $postgresConnStr['user'],
         'dbpassword' => urldecode($postgresConnStr['pass']),
         'dbhost' => $postgresConnStr['host'],
-        'dbport' => $postgresConnStr['port'] ?? 5432
+        'dbport' => $postgresConnStr['port'] ?? 5432,
       );
     redis.config.php: |-
       <?php
@@ -91,8 +91,8 @@ nextcloud:
         'redis' => array(
           'host' => $redisConnStr['host'],
           'port' => $redisConnStr['port'],
-          'password' => urldecode($redisConnStr['pass'])
-        )
+          'password' => urldecode($redisConnStr['pass']),
+        ),
       );
     s3.config.php: |-
       <?php
@@ -105,12 +105,28 @@ nextcloud:
             'key'        => getenv('S3_ACCESS_KEY'),
             'secret'     => getenv('S3_SECRET_KEY'),
             'region'     => getenv('S3_REGION'),
-            'hostname'   => 's3proxy:8080', //getenv('S3_ENDPOINT'),
+            'hostname'   => 's3proxy', //getenv('S3_ENDPOINT'),
             'use_ssl'    => false,
-            'use_path_style' => true
-          )
+            'use_path_style' => true,
+            'legacy_auth' => true,
+          ),
         )
       );
+    autoconfig.php: |-
+      <?php
+      $postgresConnStr = parse_url(getenv('POSTGRES_ADDR'));
+      $AUTOCONFIG = array (
+        'dbtype' => 'pgsql',
+        'dbname' => substr($postgresConnStr['path'], 1),
+        'dbuser' => $postgresConnStr['user'],
+        'dbpass' => urldecode($postgresConnStr['pass']),
+        'dbhost' => $postgresConnStr['host'],
+        'dbport' => $postgresConnStr['port'] ?? 5432,
+        'directory' => getenv('NEXTCLOUD_DATA_DIR') ?: '/var/www/html/data',
+        'adminlogin' => 'razzie',
+        'adminpass' => 'password',
+      );
+      $autoconfig_enabled = true;
 
   defaultConfigs:
     .htaccess: true
@@ -186,7 +202,7 @@ persistence:
   size: 2Gi
 
 livenessProbe:
-  enabled: true
+  enabled: false
   failureThreshold: 6
 
 readinessProbe:

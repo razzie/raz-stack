@@ -18,7 +18,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 8080
+  - port: 80
+    targetPort: 8080
   selector:
     app: s3proxy
 ---
@@ -38,7 +39,7 @@ spec:
     spec:
       containers:
       - name: s3proxy
-        image: ghcr.io/razzie/s3proxy:v1.0
+        image: ghcr.io/razzie/s3proxy:v1.1
         args:
         - -endpoint
         - https://$(S3_ENDPOINT)
