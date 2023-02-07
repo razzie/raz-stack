@@ -96,8 +96,8 @@ spec:
             memory: "16Mi"
             cpu: "25m"
           limits:
-            memory: "64Mi"
-            cpu: "100m"
+            memory: "256Mi"
+            cpu: "250m"
         volumeMounts:
         - mountPath: "/razbox-data"
           name: storage-vol
