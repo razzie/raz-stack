@@ -12,14 +12,14 @@ nextcloud:
   password: password
 
   s3:
-    bucket: {{ env "NEXTCLOUD_S3_BUCKET" | quote }}
-    endpoint: {{ env "NEXTCLOUD_S3_ENDPOINT" | quote }}
-    region: {{ env "NEXTCLOUD_S3_REGION" | quote }}
-    accessKey: {{ env "NEXTCLOUD_S3_ACCESS_KEY" | quote }}
-    secretKey: {{ env "NEXTCLOUD_S3_SECRET_KEY" | quote }}
-    encryptionKey: {{ env "NEXTCLOUD_s3_ENCRYPTION_KEY" | quote }}
+    bucket: {{ requiredEnv "NEXTCLOUD_S3_BUCKET" | quote }}
+    endpoint: {{ requiredEnv "NEXTCLOUD_S3_ENDPOINT" | quote }}
+    region: {{ requiredEnv "NEXTCLOUD_S3_REGION" | quote }}
+    accessKey: {{ requiredEnv "NEXTCLOUD_S3_ACCESS_KEY" | quote }}
+    secretKey: {{ requiredEnv "NEXTCLOUD_S3_SECRET_KEY" | quote }}
+    encryptionKey: {{ requiredEnv "NEXTCLOUD_S3_ENCRYPTION_KEY" | quote }}
 
-  backupPassword: {{ env "NEXTCLOUD_BACKUP_PASSWORD" | quote }}
+  backupPassword: {{ requiredEnv "NEXTCLOUD_BACKUP_PASSWORD" | quote }}
 
   configs:
     custom.config.php: |-
@@ -181,7 +181,7 @@ nextcloud:
 
   extraSidecarContainers:
   - name: s3proxy
-    image: ghcr.io/razzie/s3proxy:v1.1
+    image: ghcr.io/razzie/s3proxy:v1.2
     args:
     - -addr
     - localhost:6080
