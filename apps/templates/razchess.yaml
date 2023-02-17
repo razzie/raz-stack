@@ -65,8 +65,10 @@ spec:
     spec:
       containers:
       - name: razchess
-        image: ghcr.io/razzie/razchess:v1.8
+        image: ghcr.io/razzie/razchess:v1.9
         args:
+        - -logfile
+        - /var/log/razchess.log
         - -redis
         - $(REDIS_ADDR)
         ports:
