@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
       - name: razchess
-        image: ghcr.io/razzie/razchess:v1.9
+        image: ghcr.io/razzie/razchess:v1.10
         args:
         - -logfile
         - /var/log/razchess.log
