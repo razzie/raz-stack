@@ -12,7 +12,7 @@ spec:
     - name: website
       port: 8080
   tls:
-    secretName: mirror-gorzsony-com-cert
+    secretName: gorzsony-com-cert
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -28,7 +28,7 @@ spec:
     - name: website
       port: 8080
   tls:
-    secretName: mirror-razzie-xyz-cert
+    secretName: razzie-xyz-cert
 ---
 apiVersion: v1
 kind: Secret

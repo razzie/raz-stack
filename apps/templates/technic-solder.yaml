@@ -28,7 +28,7 @@ spec:
     - name: solder
       port: 80
   tls:
-    secretName: mirror-razzie-xyz-cert
+    secretName: razzie-xyz-cert
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

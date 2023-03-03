@@ -13,7 +13,7 @@ spec:
       proxyProtocol:
         version: 2
   tls:
-    secretName: mirror-razzie-xyz-cert
+    secretName: razzie-xyz-cert
 ---
 apiVersion: v1
 kind: Service

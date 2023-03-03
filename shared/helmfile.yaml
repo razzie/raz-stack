@@ -34,12 +34,6 @@ releases:
   values:
   - ./config/cert-manager-webhook-namecheap-config.yaml
 
-- name: reflector
-  namespace: reflector
-  chart: razzie/reflector
-  values:
-  - ./config/reflector-config.yaml
-
 - name: k8s-db-operator
   namespace: shared
   chart: razzie/k8s-db-operator

@@ -101,4 +101,4 @@ spec:
               name: mailserver-secret
       - name: cert-vol
         secret:
-          secretName: mirror-gorzsony-com-cert
+          secretName: mailserver-cert

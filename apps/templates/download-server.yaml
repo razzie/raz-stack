@@ -13,7 +13,7 @@ spec:
     - name: download-server
       port: 8080
   tls:
-    secretName: mirror-gorzsony-com-cert
+    secretName: gorzsony-com-cert
 ---
 apiVersion: v1
 kind: ConfigMap

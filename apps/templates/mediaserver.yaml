@@ -12,7 +12,7 @@ spec:
     - name: mediaserver
       port: 8080
   tls:
-    secretName: mirror-gorzsony-com-cert
+    secretName: gorzsony-com-cert
 ---
 apiVersion: k8s-db-operator.razzie.github.io/v1alpha1
 kind: DatabaseClaim

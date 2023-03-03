@@ -12,7 +12,7 @@ spec:
     - name: razchess
       port: 8080
   tls:
-    secretName: mirror-gorzsony-com-cert
+    secretName: gorzsony-com-cert
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -28,7 +28,7 @@ spec:
     - name: razchess
       port: 8080
   tls:
-    secretName: mirror-razzie-xyz-cert
+    secretName: razzie-xyz-cert
 ---
 apiVersion: k8s-db-operator.razzie.github.io/v1alpha1
 kind: DatabaseClaim

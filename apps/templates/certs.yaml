@@ -1,15 +1,27 @@
-apiVersion: v1
-kind: Secret
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
- name: mirror-gorzsony-com-cert
- annotations:
-   reflector.v1.k8s.emberstack.com/reflects: "shared/gorzsony-com-cert"
-   reflector.v1.k8s.emberstack.com/reflected-version: ""
+  name: gorzsony-com-cert
+spec:
+  secretName: gorzsony-com-cert
+  commonName: gorzsony.com
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-issuer
+  dnsNames:
+  - "gorzsony.com"
+  - "*.gorzsony.com"
 ---
-apiVersion: v1
-kind: Secret
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
- name: mirror-razzie-xyz-cert
- annotations:
-   reflector.v1.k8s.emberstack.com/reflects: "shared/razzie-xyz-cert"
-   reflector.v1.k8s.emberstack.com/reflected-version: ""
+  name: razzie-xyz-cert
+spec:
+  secretName: razzie-xyz-cert
+  commonName: razzie.xyz
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-issuer
+  dnsNames:
+  - "razzie.xyz"
+  - "*.razzie.xyz"

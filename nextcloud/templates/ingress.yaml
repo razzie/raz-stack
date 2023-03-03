@@ -24,7 +24,7 @@ spec:
   entryPoints:
   - websecure
   routes:
-  - match: Host(`nextcloud.razzie.xyz`)
+  - match: Host(`razzie.cloud`)
     kind: Rule
     middlewares:
     - name: nextcloud-dav-redirect
@@ -35,4 +35,4 @@ spec:
     - name: nextcloud
       port: 8080
   tls:
-    secretName: mirror-razzie-xyz-cert
+    secretName: razzie-cloud-cert
