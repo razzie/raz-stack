@@ -20,7 +20,7 @@ spec:
       name: letsencrypt-secret
     solvers:
     - dns01:
-        cnameStrategy: Follow
+        cnameStrategy: None
         webhook:
           groupName: acme.namecheap.com
           solverName: namecheap
