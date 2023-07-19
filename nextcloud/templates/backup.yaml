@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: postgres-backup-s3
-        image: ghcr.io/razzie/postgres-backup-s3:6091ecd
+        image: ghcr.io/razzie/postgres-backup-s3:ad5d121
         env:
         - name: SCHEDULE
           value: "@daily"
