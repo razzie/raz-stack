@@ -42,7 +42,7 @@ nextcloud:
           [
             'X-Forwarded-For'
           ],
-        'datadirectory' => getenv('NEXTCLOUD_DATA_DIR') ?: '/var/www/html/data',
+        'datadirectory' => '/var/www/html/data',
         'enable_previews' => true,
         'preview_max_x' => 4096,
         'preview_max_y' => 4096,
@@ -65,9 +65,9 @@ nextcloud:
           'OC\\Preview\\MP3',
           'OC\\Preview\\OpenDocument',
           'OC\\Preview\\Krita',
-          'OC\\Preview\\Imaginary',
+          //'OC\\Preview\\Imaginary',
         ],
-        'preview_imaginary_url' => 'http://imaginary.shared.svc.cluster.local:9000',
+        //'preview_imaginary_url' => 'http://imaginary.shared.svc.cluster.local:9000',
         'default_phone_region' => 'HU',
       );
     postgres.config.php: |-

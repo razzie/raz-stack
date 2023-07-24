@@ -3,7 +3,7 @@ FROM nextcloud:$TAG
 
 RUN set -ex; \
     apt-get update; \
-    apt-get install -y --no-install-recommends ffmpeg ghostscript vim; \
+    apt-get install -y --no-install-recommends ffmpeg ghostscript vim jq; \
     rm -rf /var/lib/apt/lists/*;
 
 RUN sed -i 's/\(^ *<policy.*rights="\)\([^"]*\)\(".*PDF.*\/>\)/\1read|write\3/1' \
