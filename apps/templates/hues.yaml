@@ -1,0 +1,54 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hues-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`hues.razzie.xyz`)
+    kind: Rule
+    services:
+    - name: hues
+      port: 8080
+  tls:
+    secretName: razzie-xyz-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hues
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: hues
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hues
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hues
+  template:
+    metadata:
+      labels:
+        app: hues
+    spec:
+      containers:
+      - name: hues
+        image: ghcr.io/razzie/0x40hues:v1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "8Mi"
+            cpu: "25m"
+          limits:
+            memory: "32Mi"
+            cpu: "100m"
