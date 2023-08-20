@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
       - name: hues
-        image: ghcr.io/razzie/0x40hues:v1.0
+        image: ghcr.io/razzie/0x40hues:v1.4
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
