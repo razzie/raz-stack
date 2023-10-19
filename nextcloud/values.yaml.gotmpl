@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/razzie/nextcloud
-  tag: 27.1.0-apache-custom
+  tag: 27.1.2-apache-custom
   flavor: apache
   #pullPolicy: Always
 
@@ -181,7 +181,8 @@ nextcloud:
 
   extraSidecarContainers:
   - name: s3proxy
-    image: ghcr.io/razzie/s3proxy:v1.2
+    image: ghcr.io/razzie/s3proxy:v1.6
+    #imagePullPolicy: Always
     args:
     - -addr
     - localhost:6080
@@ -189,6 +190,12 @@ nextcloud:
     - https://$(S3_ENDPOINT)
     - -encryption-key
     - $(S3_ENCRYPTION_KEY)
+    - -access-key
+    - $(S3_ACCESS_KEY)
+    - -secret-key
+    - $(S3_SECRET_KEY)
+    - -logging
+    - "true"
     env:
     - name: S3_ENDPOINT
       valueFrom:
@@ -200,6 +207,16 @@ nextcloud:
         secretKeyRef:
           name: nextcloud-s3-secret
           key: encryptionKey
+    - name: S3_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: nextcloud-s3-secret
+          key: accessKey
+    - name: S3_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: nextcloud-s3-secret
+          key: secretKey
     resources:
       requests:
         memory: "64Mi"
