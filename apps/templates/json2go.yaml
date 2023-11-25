@@ -1,0 +1,54 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: json2go-route
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`json2go.razzie.xyz`)
+    kind: Rule
+    services:
+    - name: json2go
+      port: 8080
+  tls:
+    secretName: razzie-xyz-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: json2go
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+  selector:
+    app: json2go
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: json2go
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: json2go
+  template:
+    metadata:
+      labels:
+        app: json2go
+    spec:
+      containers:
+      - name: json2go
+        image: ghcr.io/razzie/json2go:v1.1
+        #imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "16Mi"
+            cpu: "25m"
+          limits:
+            memory: "32Mi"
+            cpu: "250m"
