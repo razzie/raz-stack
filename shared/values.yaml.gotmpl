@@ -21,4 +21,11 @@ databases:
 imaginary:
   enabled: false
   memoryLimit: 256Mi
-  cpuLimit: 500m
+  cpuLimit: 250m
+
+telegram:
+  enabled: {{ and (env "TELEGRAM_API_ID") (env "TELEGRAM_API_HASH") }}
+  apiID: {{ env "TELEGRAM_API_ID" | quote }}
+  apiHash: {{ env "TELEGRAM_API_HASH" | quote }}
+  memoryLimit: 64Mi
+  cpuLimit: 250m
