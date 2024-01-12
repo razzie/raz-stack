@@ -85,7 +85,7 @@ spec:
           name: storage-vol
       containers:
       - name: solder-api
-        image: ghcr.io/razzie/my-technic-solder:v1.0
+        image: ghcr.io/razzie/my-technic-solder:v1.1
         ports:
         - containerPort: 8080
         env:
@@ -101,16 +101,16 @@ spec:
           value: "false"
         resources:
           requests:
-            memory: "64Mi"
-            cpu: "25m"
-          limits:
             memory: "128Mi"
             cpu: "25m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
         volumeMounts:
         - mountPath: /var/lib/solder
           name: storage-vol
       - name: solder-public
-        image: ghcr.io/razzie/my-technic-solder:v1.0
+        image: ghcr.io/razzie/my-technic-solder:v1.1
         command:
         - /razvhost
         args:
@@ -124,9 +124,11 @@ spec:
             memory: "8Mi"
             cpu: "25m"
           limits:
-            memory: "16Mi"
-            cpu: "25m"
+            memory: "64Mi"
+            cpu: "100m"
       volumes:
       - name: storage-vol
         persistentVolumeClaim:
           claimName: solder-pvc
+      imagePullSecrets:
+      - name: ghcr-secret
