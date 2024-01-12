@@ -1,3 +1,13 @@
+ghcr:
+  config: |
+    {
+      "auths": {
+        "ghcr.io": {
+          "auth": {{ printf "%s:%s" (requiredEnv "GHCR_USERNAME") (requiredEnv "GHCR_TOKEN") | b64enc | quote }}
+        }
+      }
+    }
+
 downloadServer:
   enabled: {{ not (empty (env "PUBLIC_BUCKET_URL")) }}
   bucketURL: {{ env "PUBLIC_BUCKET_URL" | quote }}
@@ -7,7 +17,7 @@ pizzabot:
   token: {{ env "PIZZABOT_TOKEN" | quote }}
 
 website:
-  githubToken: {{ env "GITHUB_TOKEN" | quote }}
+  githubToken: {{ env "GITHUB_PUBLIC_TOKEN" | quote }}
 
 ircd:
   enabled: {{ not (empty (env "IRCD_ADMIN_PASSWORD")) }}
