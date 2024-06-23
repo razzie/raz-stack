@@ -31,14 +31,6 @@ spec:
     secretName: razzie-xyz-cert
 ---
 apiVersion: v1
-kind: Secret
-metadata:
-  name: website-secret
-type: Opaque
-data:
-  GITHUB_TOKEN: {{ .Values.website.githubToken | b64enc | quote }}
----
-apiVersion: v1
 kind: Service
 metadata:
   name: website
@@ -65,13 +57,10 @@ spec:
     spec:
       containers:
       - name: website
-        image: ghcr.io/razzie/gorzsony.com:latest
+        image: ghcr.io/razzie/personal-website:v2.2
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
-        envFrom:
-        - secretRef:
-            name: website-secret
         resources:
           requests:
             memory: "8Mi"
